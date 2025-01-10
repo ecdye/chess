@@ -16,6 +16,7 @@ public class ChessBoard {
         for (int i = 0; i < 8; i++) {
             board.add(new ArrayList<ChessPiece>());
         }
+        resetBoard();
     }
 
     /**
@@ -50,6 +51,34 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        for (int i = 0; i < 8; i++) {
+            board.get(i).clear();
+            if (i == 0) {
+                setKingRow(0, ChessGame.TeamColor.WHITE);
+            } else if (i == 1) {
+                setPawnRow(1, ChessGame.TeamColor.WHITE);
+            } else if (i == 6) {
+                setPawnRow(6, ChessGame.TeamColor.BLACK);
+            } else if (i == 7) {
+                setPawnRow(7, ChessGame.TeamColor.BLACK);
+            }
+        }
+    }
+
+    private void setPawnRow(int row, ChessGame.TeamColor teamColor) {
+        for (int i = 0; i < 8; i++) {
+            board.get(row).add(new ChessPiece(teamColor, ChessPiece.PieceType.PAWN));
+        }
+    }
+
+    private void setKingRow(int row, ChessGame.TeamColor teamColor) {
+        board.get(row).add(new ChessPiece(teamColor, ChessPiece.PieceType.ROOK));
+        board.get(row).add(new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT));
+        board.get(row).add(new ChessPiece(teamColor, ChessPiece.PieceType.BISHOP));
+        board.get(row).add(new ChessPiece(teamColor, ChessPiece.PieceType.QUEEN));
+        board.get(row).add(new ChessPiece(teamColor, ChessPiece.PieceType.KING));
+        board.get(row).add(new ChessPiece(teamColor, ChessPiece.PieceType.BISHOP));
+        board.get(row).add(new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT));
+        board.get(row).add(new ChessPiece(teamColor, ChessPiece.PieceType.ROOK));
     }
 }
