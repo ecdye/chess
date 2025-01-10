@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -53,7 +54,51 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> moves = new ArrayList<>();
+
+        ChessPiece piece = board.getPiece(myPosition);
+        if (piece == null) {
+            return moves;
+        }
+        PieceType pieceType = piece.getPieceType();
+        ChessGame.TeamColor teamColor = piece.getTeamColor();
+        int[] directions;
+        switch (pieceType) {
+            case KING:
+                directions = new int[] {
+                        0, 1,    // right
+                        0, -1,   // left
+                        1, 0,    // down
+                        1, 1,    // down-right
+                        1, -1,    // down-left
+                        -1, 0,   // up
+                        -1, 1,   // up-right
+                        -1, -1   // up-left
+                };
+                break;
+            default:
+                return moves;
+        }
+
+        for (int i = 0; i < directions.length; i += 2) {
+            int newRow = myPosition.getRow() + directions[i];
+            int newColumn = myPosition.getColumn() + directions[i + 1];
+            ChessPosition newPosition = new ChessPosition(newRow, newColumn);
+
+            if(!board.isValidPosition(newPosition)) {
+                continue;
+            }
+
+            ChessPiece newPiece = board.getPiece(newPosition);
+            if (newPiece != null && teamColor == newPiece.getTeamColor()) {
+                continue;
+            }
+
+            ChessMove validMove = new ChessMove(myPosition, newPosition, null);
+            moves.add(validMove);
+        }
+
+        return moves;
     }
 
     @Override

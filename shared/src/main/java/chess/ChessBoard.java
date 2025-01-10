@@ -23,8 +23,8 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        int row = position.getRow();
-        int column = position.getColumn();
+        int row = position.getRow() - 1;
+        int column = position.getColumn() - 1;
 
         board[row][column] = piece;
     }
@@ -37,10 +37,19 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        int row = position.getRow();
-        int column = position.getColumn();
+        int row = position.getRow() - 1;
+        int column = position.getColumn() - 1;
 
-        return board[row][column];
+        if (isValidPosition(position)) {
+            return board[row][column];
+        }
+        return null;
+    }
+
+    public boolean isValidPosition(ChessPosition position) {
+        int row = position.getRow() - 1;
+        int column = position.getColumn() - 1;
+        return 0 <= row && row < 8 && 0 <= column && column < 8;
     }
 
     /**
