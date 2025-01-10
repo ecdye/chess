@@ -1,6 +1,7 @@
 package chess;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -9,13 +10,9 @@ import java.util.ArrayList;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    public ArrayList<ArrayList<ChessPiece>> board;
+    public ChessPiece[][] board;
 
     public ChessBoard() {
-        board = new ArrayList<ArrayList<ChessPiece>>();
-        for (int i = 0; i < 8; i++) {
-            board.add(new ArrayList<ChessPiece>());
-        }
         resetBoard();
     }
 
@@ -29,7 +26,7 @@ public class ChessBoard {
         int row = position.getRow();
         int column = position.getColumn();
 
-        board.get(row).set(column, piece);
+        board[row][column] = piece;
     }
 
     /**
@@ -43,7 +40,7 @@ public class ChessBoard {
         int row = position.getRow();
         int column = position.getColumn();
 
-        return board.get(row).get(column);
+        return board[row][column];
     }
 
     /**
@@ -51,8 +48,8 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
+        board = new ChessPiece[8][8];
         for (int i = 0; i < 8; i++) {
-            board.get(i).clear();
             if (i == 0) {
                 setKingRow(0, ChessGame.TeamColor.WHITE);
             } else if (i == 1) {
@@ -60,25 +57,46 @@ public class ChessBoard {
             } else if (i == 6) {
                 setPawnRow(6, ChessGame.TeamColor.BLACK);
             } else if (i == 7) {
-                setPawnRow(7, ChessGame.TeamColor.BLACK);
+                setKingRow(7, ChessGame.TeamColor.BLACK);
             }
         }
     }
 
     private void setPawnRow(int row, ChessGame.TeamColor teamColor) {
         for (int i = 0; i < 8; i++) {
-            board.get(row).add(new ChessPiece(teamColor, ChessPiece.PieceType.PAWN));
+            board[row][i] = new ChessPiece(teamColor, ChessPiece.PieceType.PAWN);
         }
     }
 
     private void setKingRow(int row, ChessGame.TeamColor teamColor) {
-        board.get(row).add(new ChessPiece(teamColor, ChessPiece.PieceType.ROOK));
-        board.get(row).add(new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT));
-        board.get(row).add(new ChessPiece(teamColor, ChessPiece.PieceType.BISHOP));
-        board.get(row).add(new ChessPiece(teamColor, ChessPiece.PieceType.QUEEN));
-        board.get(row).add(new ChessPiece(teamColor, ChessPiece.PieceType.KING));
-        board.get(row).add(new ChessPiece(teamColor, ChessPiece.PieceType.BISHOP));
-        board.get(row).add(new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT));
-        board.get(row).add(new ChessPiece(teamColor, ChessPiece.PieceType.ROOK));
+        board[row][0] = new ChessPiece(teamColor, ChessPiece.PieceType.ROOK);
+        board[row][1] = new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT);
+        board[row][2] = new ChessPiece(teamColor, ChessPiece.PieceType.BISHOP);
+        board[row][3] = new ChessPiece(teamColor, ChessPiece.PieceType.QUEEN);
+        board[row][4] = new ChessPiece(teamColor, ChessPiece.PieceType.KING);
+        board[row][5] = new ChessPiece(teamColor, ChessPiece.PieceType.BISHOP);
+        board[row][6] = new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT);
+        board[row][7] = new ChessPiece(teamColor, ChessPiece.PieceType.ROOK);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessBoard that = (ChessBoard) o;
+        return Objects.deepEquals(board, that.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(board);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessBoard{" +
+                "board=" + Arrays.toString(board) +
+                '}';
     }
 }
