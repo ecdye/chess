@@ -7,9 +7,13 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessBoard {
+    public Array[] board;
 
     public ChessBoard() {
-        
+        board = new Array[8];
+        for (int i = 0; i < 8; i++) {
+            board[i] = new Array[8];
+        }
     }
 
     /**
