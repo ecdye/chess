@@ -13,7 +13,7 @@ public class ChessBoard {
     public ChessPiece[][] board;
 
     public ChessBoard() {
-        resetBoard();
+        board = new ChessPiece[8][8];
     }
 
     /**
@@ -39,7 +39,6 @@ public class ChessBoard {
     public ChessPiece getPiece(ChessPosition position) {
         int row = position.getRow() - 1;
         int column = position.getColumn() - 1;
-
         if (isValidPosition(position)) {
             return board[row][column];
         }
@@ -47,9 +46,9 @@ public class ChessBoard {
     }
 
     public boolean isValidPosition(ChessPosition position) {
-        int row = position.getRow() - 1;
-        int column = position.getColumn() - 1;
-        return 0 <= row && row < 8 && 0 <= column && column < 8;
+        int row = position.getRow();
+        int column = position.getColumn();
+        return 1 <= row && row <= 8 && 1 <= column && column <= 8;
     }
 
     /**
