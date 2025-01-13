@@ -3,6 +3,8 @@ package chess;
 import java.util.Arrays;
 import java.util.Objects;
 
+import chess.ChessPiece.PieceType;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -77,14 +79,12 @@ public class ChessBoard {
     }
 
     private void setKingRow(int row, ChessGame.TeamColor teamColor) {
-        board[row][0] = new ChessPiece(teamColor, ChessPiece.PieceType.ROOK);
-        board[row][1] = new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT);
-        board[row][2] = new ChessPiece(teamColor, ChessPiece.PieceType.BISHOP);
-        board[row][3] = new ChessPiece(teamColor, ChessPiece.PieceType.QUEEN);
-        board[row][4] = new ChessPiece(teamColor, ChessPiece.PieceType.KING);
-        board[row][5] = new ChessPiece(teamColor, ChessPiece.PieceType.BISHOP);
-        board[row][6] = new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT);
-        board[row][7] = new ChessPiece(teamColor, ChessPiece.PieceType.ROOK);
+        PieceType[] kingRow = {PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP,
+                                PieceType.QUEEN, PieceType.KING,
+                                PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK};
+        for (int i = 0; i < kingRow.length; i++) {
+            board[row][i] = new ChessPiece(teamColor, kingRow[i]);
+        }
     }
 
     @Override
