@@ -73,7 +73,7 @@ public class ChessPiece {
             PieceType type = piece.getPieceType();
 
             ChessPosition newPosition = new ChessPosition(row, col);
-            if (!board.isValidPosition(newPosition)) continue;
+            if (!ChessBoard.isValidPosition(newPosition)) continue;
 
             ChessPiece newPiece = board.getPiece(newPosition);
             if (newPiece != null && newPiece.getTeamColor() == color) continue;
@@ -87,7 +87,7 @@ public class ChessPiece {
                     col += directions[i + 1];
 
                     newPosition = new ChessPosition(row, col);
-                    if (!board.isValidPosition(newPosition)) break;
+                    if (!ChessBoard.isValidPosition(newPosition)) break;
 
                     newPiece = board.getPiece(newPosition);
                     if (newPiece != null && newPiece.getTeamColor() == color) break;
@@ -140,7 +140,7 @@ public class ChessPiece {
         ChessPosition newPosition = new ChessPosition(row, col);
 
         // Handle basic move forward
-        if (board.isValidPosition(newPosition) && board.getPiece(newPosition) == null) {
+        if (ChessBoard.isValidPosition(newPosition) && board.getPiece(newPosition) == null) {
             if (row == 8 || row == 1) {
                 addPromotions(moves, myPosition, newPosition);
             } else {

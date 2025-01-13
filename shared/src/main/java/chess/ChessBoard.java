@@ -47,7 +47,14 @@ public class ChessBoard {
         return null;
     }
 
-    public boolean isValidPosition(ChessPosition position) {
+    /**
+     * Returns true if given ChessPosition is actually a valid position on a
+     * chess board
+     * 
+     * @param position
+     * @return true/false
+     */
+    public static boolean isValidPosition(ChessPosition position) {
         int row = position.getRow();
         int column = position.getColumn();
         return 1 <= row && row <= 8 && 1 <= column && column <= 8;
