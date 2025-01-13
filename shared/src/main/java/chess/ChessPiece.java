@@ -178,17 +178,17 @@ public class ChessPiece {
     }
 
     /**
-     * Adds all possible promotions for a pawn in a given move
+     * Adds all possible promotions for a pawn to the list of possible moves
      *
      * @param moves  Collection of moves to add to lol
      * @param from   Current position of the pawn
      * @param to     Position the pawn is moving to
      */
     private void addPromotions(Collection<ChessMove> moves, ChessPosition from, ChessPosition to) {
-        moves.add(new ChessMove(from, to, PieceType.QUEEN));
-        moves.add(new ChessMove(from, to, PieceType.ROOK));
-        moves.add(new ChessMove(from, to, PieceType.BISHOP));
-        moves.add(new ChessMove(from, to, PieceType.KNIGHT));
+        PieceType[] promotions = {PieceType.QUEEN, PieceType.ROOK, PieceType.BISHOP, PieceType.KNIGHT};
+        for (PieceType promotion : promotions) {
+            moves.add(new ChessMove(from, to, promotion));
+        }
     }
 
     @Override
