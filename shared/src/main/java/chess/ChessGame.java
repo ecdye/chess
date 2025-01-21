@@ -48,7 +48,11 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = gameBoard.getPiece(startPosition);
+        if (piece == null) return null;
+
+        // TODO: Check if a given move leaves King in check
+        return piece.pieceMoves(gameBoard, startPosition);
     }
 
     /**
