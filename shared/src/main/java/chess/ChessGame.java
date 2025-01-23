@@ -55,8 +55,22 @@ public class ChessGame {
         ChessPiece piece = gameBoard.getPiece(startPosition);
         if (piece == null) return null;
 
-        // TODO: Check if a given move leaves King in check
-        return piece.pieceMoves(gameBoard, startPosition);
+
+        Collection<ChessMove> moves = piece.pieceMoves(gameBoard, startPosition);
+        for (ChessMove move : moves) {
+            // Mock the move
+            gameBoard.addPiece(move.getEndPosition(), piece);
+            gameBoard.removePiece(move.getStartPosition());
+
+            if (isInCheck(teamTurn)) {
+                moves.remove(move);
+            }
+
+            // Now undo it
+            gameBoard.addPiece(startPosition, piece);
+            gameBoard.removePiece(move.getEndPosition());
+        }
+        return moves;
     }
 
     /**
@@ -144,7 +158,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        throw new RuntimeException("Not implemented");
+        gameBoard = board;
     }
 
     /**
@@ -153,6 +167,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        throw new RuntimeException("Not implemented");
+        return gameBoard;
     }
 }
