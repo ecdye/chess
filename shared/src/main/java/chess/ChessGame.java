@@ -2,6 +2,8 @@ package chess;
 
 import java.util.Collection;
 
+import chess.ChessPiece.PieceType;
+
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -11,6 +13,8 @@ import java.util.Collection;
 public class ChessGame {
     private ChessBoard gameBoard = new ChessBoard();
     private TeamColor teamTurn = TeamColor.WHITE;
+    private ChessPosition whiteKingPosition = new ChessPosition(1, 5);
+    private ChessPosition blackKingPosition = new ChessPosition(8, 5);
 
     public ChessGame() {
 
@@ -87,7 +91,30 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPosition = null;
+        if (teamColor == TeamColor.WHITE) {
+            kingPosition = whiteKingPosition;
+        } else if (teamColor == TeamColor.BLACK) {
+            kingPosition = blackKingPosition;
+        }
+
+        // Check if any opponent's piece can capture the king
+        // TODO: Try and make this more better
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition position = new ChessPosition(row, col);
+                ChessPiece piece = gameBoard.getPiece(position);
+                if (piece != null && piece.getTeamColor() != teamColor) {
+                    Collection<ChessMove> moves = piece.pieceMoves(gameBoard, position);
+                    for (ChessMove move : moves) {
+                        if (move.getEndPosition().equals(kingPosition)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**

@@ -62,7 +62,7 @@ public class ChessBoard {
     /**
      * Returns true if given ChessPosition is actually a valid position on a
      * chess board
-     * 
+     *
      * @param position
      * @return true/false
      */
