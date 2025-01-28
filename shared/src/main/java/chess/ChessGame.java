@@ -18,7 +18,7 @@ public class ChessGame {
     private ChessPosition blackKingPosition = new ChessPosition(8, 5);
 
     public ChessGame() {
-
+        gameBoard.resetBoard();
     }
 
     /**
