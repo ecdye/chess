@@ -22,6 +22,7 @@ public class ChessGame {
     private boolean whiteRookRMoved = false;
     private boolean blackRookLMoved = false;
     private boolean blackRookRMoved = false;
+    private boolean passantTurn = false;
 
     public ChessGame() {
         gameBoard.resetBoard();
@@ -106,6 +107,7 @@ public class ChessGame {
         }
 
         if (piece.getPieceType() == PieceType.KING) validCastleMoves(validMoves, startPosition);
+        if (piece.getPieceType() == PieceType.PAWN && passantTurn) validEnPassantMoves(validMoves, startPosition);
 
         return validMoves;
     }
@@ -143,6 +145,26 @@ public class ChessGame {
         }
     }
 
+    private void validEnPassantMoves(Collection<ChessMove> validMoves, ChessPosition startPosition) {
+        ChessPosition leftSide = new ChessPosition(startPosition.getRow(), startPosition.getColumn() - 1);
+        ChessPosition rightSide = new ChessPosition(startPosition.getRow(), startPosition.getColumn() + 1);
+        ChessPiece piece = gameBoard.getPiece(startPosition);
+        ChessPiece left = gameBoard.getPiece(leftSide);
+        ChessPiece right = gameBoard.getPiece(rightSide);
+        int direction = piece.getTeamColor() == TeamColor.WHITE ? 1 : -1;
+
+        if (left != null && left.getPieceType() == PieceType.PAWN &&
+            left.getTeamColor() != teamTurn) {
+                validMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() + direction,
+                    startPosition.getColumn() - 1), null));
+        }
+        if (right != null && right.getPieceType() == PieceType.PAWN &&
+            right.getTeamColor() != teamTurn) {
+                validMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() + direction,
+                    startPosition.getColumn() + 1), null));
+        }
+    }
+
     /**
      * Makes a move in a chess game
      *
@@ -176,6 +198,21 @@ public class ChessGame {
                 } else if (move.getStartPosition().equals(new ChessPosition(baseRow, 8))) {
                     if (teamTurn == TeamColor.WHITE) whiteRookRMoved = true;
                     else blackRookRMoved = true;
+                }
+            case PieceType.PAWN:
+                passantTurn = false;
+                baseRow = (teamTurn == TeamColor.WHITE) ? 2 : 7;
+                int direction = (teamTurn == TeamColor.WHITE) ? 2 : -2;
+                if (move.getStartPosition().getRow() == baseRow &&
+                    move.getEndPosition().getRow() == baseRow + direction) {
+                        passantTurn = true;
+                }
+                if (gameBoard.getPiece(move.getEndPosition()) == null) {
+                    ChessPosition side = new ChessPosition(move.getStartPosition().getRow(), move.getEndPosition().getColumn());
+                    ChessPiece sidePiece = gameBoard.getPiece(side);
+                    if (sidePiece != null && sidePiece.getPieceType() == PieceType.PAWN) {
+                        gameBoard.removePiece(side);
+                    }
                 }
             default:
                 if (move.getPromotionPiece() != null) {
