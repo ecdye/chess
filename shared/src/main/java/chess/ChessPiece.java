@@ -58,7 +58,9 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> moves = new ArrayList<>();
         ChessPiece piece = board.getPiece(myPosition);
-        if (piece == null) return moves;
+        if (piece == null) {
+            return moves;
+        }
 
         // Handle the special case of pawns separately
         if (piece.getPieceType() == PieceType.PAWN) {
