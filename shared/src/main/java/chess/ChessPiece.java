@@ -73,10 +73,14 @@ public class ChessPiece {
             PieceType type = piece.getPieceType();
 
             ChessPosition newPosition = new ChessPosition(row, col);
-            if (!ChessBoard.isValidPosition(newPosition)) continue;
+            if (!ChessBoard.isValidPosition(newPosition)) {
+                continue;
+            }
 
             ChessPiece newPiece = board.getPiece(newPosition);
-            if (newPiece != null && newPiece.getTeamColor() == color) continue;
+            if (newPiece != null && newPiece.getTeamColor() == color) {
+                continue;
+            }
 
             moves.add(new ChessMove(myPosition, newPosition, null));
 
@@ -87,10 +91,14 @@ public class ChessPiece {
                     col += directions[i + 1];
 
                     newPosition = new ChessPosition(row, col);
-                    if (!ChessBoard.isValidPosition(newPosition)) break;
+                    if (!ChessBoard.isValidPosition(newPosition)) {
+                        break;
+                    }
 
                     newPiece = board.getPiece(newPosition);
-                    if (newPiece != null && newPiece.getTeamColor() == color) break;
+                    if (newPiece != null && newPiece.getTeamColor() == color) {
+                        break;
+                    }
 
                     moves.add(new ChessMove(myPosition, newPosition, null));
                 }

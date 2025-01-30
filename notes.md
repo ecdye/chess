@@ -15,3 +15,10 @@ It looks like the simplest way to calculate the piece moves is to use coordinate
 ```
 {0,1, 0,-1, 1,0, 1,1, 1,-1, -1,0, -1,1, -1,-1}
 ```
+
+## Formatting
+
+- Always use braces with if statements.
+- Max 150 line length
+- Max of 4 nesting
+- No duplicated code

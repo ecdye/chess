@@ -60,15 +60,17 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        Collection<ChessMove> validMoves = new ArrayList<>();
         ChessPiece piece = gameBoard.getPiece(startPosition);
-        ChessPosition savedKingPosition = null;
-        if (piece == null) return null;
-        TeamColor color = piece.getTeamColor();
-        if (piece.getPieceType() == PieceType.KING) {
-            savedKingPosition = piece.getTeamColor() == TeamColor.WHITE ? whiteKingPosition : blackKingPosition;
+        if (piece == null) {
+            return null;
         }
 
+        TeamColor color = piece.getTeamColor();
+        ChessPosition savedKingPosition = null;
+        if (piece.getPieceType() == PieceType.KING) {
+            savedKingPosition = color == TeamColor.WHITE ? whiteKingPosition : blackKingPosition;
+        }
+        Collection<ChessMove> validMoves = new ArrayList<>();
         Collection<ChessMove> moves = piece.pieceMoves(gameBoard, startPosition);
 
         for (ChessMove move : moves) {
@@ -106,8 +108,12 @@ public class ChessGame {
             }
         }
 
-        if (piece.getPieceType() == PieceType.KING) validCastleMoves(validMoves, startPosition);
-        if (piece.getPieceType() == PieceType.PAWN && passantTurn) validEnPassantMoves(validMoves, startPosition);
+        if (piece.getPieceType() == PieceType.KING) {
+            validCastleMoves(validMoves, startPosition);
+        }
+        if (piece.getPieceType() == PieceType.PAWN && passantTurn) {
+            validEnPassantMoves(validMoves, startPosition);
+        }
 
         return validMoves;
     }
@@ -173,31 +179,41 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece pieceToMove = gameBoard.getPiece(move.getStartPosition());
-        if (pieceToMove == null || pieceToMove.getTeamColor() != teamTurn) throw new InvalidMoveException();
+        if (pieceToMove == null || pieceToMove.getTeamColor() != teamTurn) {
+            throw new InvalidMoveException();
+        }
 
         Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
-        if (!validMoves.contains(move)) throw new InvalidMoveException();
+        if (!validMoves.contains(move)) {
+            throw new InvalidMoveException();
+        }
 
         switch (pieceToMove.getPieceType()) {
             case PieceType.KING:
+                makeCastleMove(move);
+
                 // Update kings position
                 if (teamTurn == TeamColor.WHITE) {
-                    makeCastleMove(move);
                     whiteKingPosition = move.getEndPosition();
                     whiteKingMoved = true;
                 } else {
-                    makeCastleMove(move);
                     blackKingPosition = move.getEndPosition();
                     blackKingMoved = true;
                 }
             case PieceType.ROOK:
                 int baseRow = (teamTurn == TeamColor.WHITE) ? 1 : 8;
                 if (move.getStartPosition().equals(new ChessPosition(baseRow, 1))) {
-                    if (teamTurn == TeamColor.WHITE) whiteRookLMoved = true;
-                    else blackRookLMoved = true;
+                    if (teamTurn == TeamColor.WHITE) {
+                        whiteRookLMoved = true;
+                    } else {
+                        blackRookLMoved = true;
+                    }
                 } else if (move.getStartPosition().equals(new ChessPosition(baseRow, 8))) {
-                    if (teamTurn == TeamColor.WHITE) whiteRookRMoved = true;
-                    else blackRookRMoved = true;
+                    if (teamTurn == TeamColor.WHITE) {
+                        whiteRookRMoved = true;
+                    } else {
+                        blackRookRMoved = true;
+                    }
                 }
             case PieceType.PAWN:
                 passantTurn = false;
@@ -266,18 +282,19 @@ public class ChessGame {
         }
 
         // Check if any opponent's piece can capture the king
-        // TODO: Try and make this more better
         TeamColor opposingTeam = (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPosition position = new ChessPosition(row, col);
                 ChessPiece piece = gameBoard.getPiece(position);
-                if (piece != null && piece.getTeamColor() == opposingTeam) {
-                    Collection<ChessMove> moves = piece.pieceMoves(gameBoard, position);
-                    for (ChessMove move : moves) {
-                        if (move.getEndPosition().equals(kingPosition)) {
-                            return true;
-                        }
+                if (piece == null || piece.getTeamColor() != opposingTeam) {
+                    continue;
+                }
+
+                Collection<ChessMove> moves = piece.pieceMoves(gameBoard, position);
+                for (ChessMove move : moves) {
+                    if (move.getEndPosition().equals(kingPosition)) {
+                        return true;
                     }
                 }
             }
