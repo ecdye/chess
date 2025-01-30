@@ -245,7 +245,9 @@ public class ChessGame {
 
     private void makeCastleMove(ChessMove move) {
         if ((teamTurn == TeamColor.WHITE && whiteKingMoved) ||
-            (teamTurn == TeamColor.BLACK && blackKingMoved)) return;
+            (teamTurn == TeamColor.BLACK && blackKingMoved)) {
+                return;
+        }
 
         int row = teamTurn == TeamColor.WHITE ? 1 : 8;
         ChessPosition kingPosition = teamTurn == TeamColor.WHITE ? whiteKingPosition : blackKingPosition;
