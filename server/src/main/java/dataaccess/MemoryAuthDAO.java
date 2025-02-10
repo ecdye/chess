@@ -30,4 +30,9 @@ public class MemoryAuthDAO implements AuthDAO {
         AuthData authData = authDataMap.remove(authToken);
         return authData != null;
     }
+
+    @Override
+    public void clear() {
+        authDataMap.clear();
+    }
 }
