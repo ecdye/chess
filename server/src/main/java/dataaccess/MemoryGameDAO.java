@@ -26,8 +26,16 @@ public class MemoryGameDAO implements GameDAO {
 	}
 
 	@Override
-	public int createGame(String gameName) {
+	public int createGame(String gameName) throws DataAccessException {
 		int gameID = new Random().nextInt(1000, 10000);
+		int i = 0;
+		while (gameDataMap.containsKey(gameID) && i < 5) {
+            gameID = new Random().nextInt(1000, 10000);
+			i++;
+        }
+		if (i == 5 && gameDataMap.containsKey(gameID)) {
+			throw new DataAccessException("Error: Could not obtain unique gameID");
+		}
         GameData gameData = new GameData(gameID, null, null, gameName, new ChessGame());
         gameDataMap.put(gameID, gameData);
 
