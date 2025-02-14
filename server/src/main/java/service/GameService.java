@@ -48,7 +48,7 @@ public class GameService {
         }
 
         GameData gameData = gameDAO.getGame(joinGameRequest.gameID());
-        if (gameData == null) {
+        if (gameData == null || joinGameRequest.playerColor() == null) {
             return new JoinGameResult("Error: bad request");
         }
 
@@ -85,10 +85,6 @@ public class GameService {
         }
 
         Collection<GameData> gamesList = gameDAO.listGames();
-        if (gamesList.isEmpty()) {
-            return new ListGamesResult(null, "Error: no games");
-        }
-
         return new ListGamesResult(gamesList, null);
     }
 }

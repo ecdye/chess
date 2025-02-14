@@ -50,34 +50,28 @@ public class Server {
     private Object registerHandler(Request req, Response res) {
         RegisterRequest request = new Gson().fromJson(req.body(), RegisterRequest.class);
         RegisterResult result = userService.createUser(request);
-        if (result.message() != null) {
-            switch (result.message()) {
-                case "Error: already taken":
-                    res.status(403);
-                    break;
-                case "Error: bad request":
-                    res.status(500);
-                    break;
-            }
-        }
+        errorHandler(result.message(), res);
         return new Gson().toJson(result);
     }
 
     private Object loginHandler(Request req, Response res) {
         LoginRequest request = new Gson().fromJson(req.body(), LoginRequest.class);
         LoginResult result = userService.loginUser(request);
+        errorHandler(result.message(), res);
         return new Gson().toJson(result);
     }
 
     private Object logoutHandler(Request req, Response res) {
         LogoutRequest request = new LogoutRequest(req.headers("Authorization"));
         LogoutResult result = userService.logoutUser(request);
+        errorHandler(result.message(), res);
         return new Gson().toJson(result);
     }
 
     private Object listGamesHandler(Request req, Response res) {
         ListGamesRequest request = new ListGamesRequest(req.headers("Authorization"));
         ListGamesResult result = gameService.listGames(request);
+        errorHandler(result.message(), res);
         return new Gson().toJson(result);
     }
 
@@ -85,6 +79,7 @@ public class Server {
         String gameName = new Gson().fromJson(req.body(), CreateGameRequest.class).gameName();
         CreateGameRequest request = new CreateGameRequest(req.headers("Authorization"), gameName);
         CreateGameResult result = gameService.createGame(request);
+        errorHandler(result.message(), res);
         return new Gson().toJson(result);
     }
 
@@ -92,6 +87,26 @@ public class Server {
         JoinGameRequest base = new Gson().fromJson(req.body(), JoinGameRequest.class);
         JoinGameRequest request = new JoinGameRequest(req.headers("Authorization"), base.playerColor(), base.gameID());
         JoinGameResult result = gameService.joinGame(request);
+        errorHandler(result.message(), res);
         return new Gson().toJson(result);
+    }
+
+    private void errorHandler(String message, Response res) {
+        if (message == null) {
+            return;
+        }
+        switch (message) {
+            case "Error: already taken":
+                res.status(403);
+                break;
+            case "Error: bad request":
+                res.status(400);
+                break;
+            case "Error: unauthorized":
+                res.status(401);
+                break;
+            default:
+                res.status(500);
+        }
     }
 }

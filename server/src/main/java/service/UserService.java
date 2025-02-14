@@ -38,10 +38,7 @@ public class UserService {
 
     public LoginResult loginUser(LoginRequest loginRequest) {
         UserData user = userDAO.getUser(loginRequest.username());
-        if (user == null) {
-            return new LoginResult(null, null, "Error: no such user");
-        }
-        if (loginRequest.password() != user.password()) {
+        if (user == null || !loginRequest.password().equals(user.password())) {
             return new LoginResult(null, null, "Error: unauthorized");
         }
         AuthData authData = authDAO.createAuth(user);
