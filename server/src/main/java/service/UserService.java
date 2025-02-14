@@ -21,6 +21,10 @@ public class UserService {
     }
 
     public RegisterResult createUser(RegisterRequest registerRequest) {
+        if (registerRequest.username() == null || registerRequest.password() == null || registerRequest.email() == null) {
+            return new RegisterResult(null, null, "Error: bad request");
+        }
+
         UserData user = userDAO.getUser(registerRequest.username());
         if (user != null) {
             return new RegisterResult(null, null, "Error: already taken");
