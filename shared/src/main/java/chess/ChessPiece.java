@@ -11,25 +11,13 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessPiece {
-    private PieceType type;
     private final ChessGame.TeamColor color;
+    private PieceType type;
 
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.type = type;
         this.color = pieceColor;
-    }
-
-    /**
-     * The various different chess piece options
-     */
-    public enum PieceType {
-        KING,
-        QUEEN,
-        BISHOP,
-        KNIGHT,
-        ROOK,
-        PAWN
     }
 
     /**
@@ -114,19 +102,19 @@ public class ChessPiece {
      * Returns the directions a piece can move in based on its type
      *
      * @param pieceType The type of piece to get directions for
-     * @return  An array of directions in the form of {row1, col1, row2, col2, ...}
+     * @return An array of directions in the form of {row1, col1, row2, col2, ...}
      */
     private int[] getDirections(PieceType pieceType) {
         switch (pieceType) {
             case KING:
             case QUEEN:
-                return new int[]{0,1, 0,-1, 1,0, 1,1, 1,-1, -1,0, -1,1, -1,-1};
+                return new int[]{0, 1, 0, -1, 1, 0, 1, 1, 1, -1, -1, 0, -1, 1, -1, -1};
             case BISHOP:
-                return new int[]{1,1, 1,-1, -1,1, -1,-1};
+                return new int[]{1, 1, 1, -1, -1, 1, -1, -1};
             case KNIGHT:
-                return new int[]{2,1, 2,-1, -2,1, -2,-1, 1,2, 1,-2, -1,2, -1,-2};
+                return new int[]{2, 1, 2, -1, -2, 1, -2, -1, 1, 2, 1, -2, -1, 2, -1, -2};
             case ROOK:
-                return new int[]{0,1, 0,-1, 1,0, -1,0};
+                return new int[]{0, 1, 0, -1, 1, 0, -1, 0};
             default:
                 return new int[0];
         }
@@ -160,7 +148,7 @@ public class ChessPiece {
 
         // Handle double move forward
         if ((color == ChessGame.TeamColor.WHITE && myPosition.getRow() == 2) ||
-            (color == ChessGame.TeamColor.BLACK && myPosition.getRow() == 7)) {
+                (color == ChessGame.TeamColor.BLACK && myPosition.getRow() == 7)) {
             ChessPosition intermediatePosition = new ChessPosition(row, col);
             newPosition = new ChessPosition(row + direction, col);
             if (board.getPiece(intermediatePosition) == null && board.getPiece(newPosition) == null) {
@@ -172,7 +160,7 @@ public class ChessPiece {
 
         // Handle diagonal moves when capturing
         int[] directions = new int[]{1, -1};
-        for (int diagonal: directions) {
+        for (int diagonal : directions) {
             newPosition = new ChessPosition(myPosition.getRow() + direction, col + diagonal);
             ChessPiece newPiece = board.getPiece(newPosition);
             if (newPiece != null && newPiece.getTeamColor() != color) {
@@ -190,9 +178,9 @@ public class ChessPiece {
     /**
      * Adds all possible promotions for a pawn to the list of possible moves
      *
-     * @param moves  Collection of moves to add to lol
-     * @param from   Current position of the pawn
-     * @param to     Position the pawn is moving to
+     * @param moves Collection of moves to add to lol
+     * @param from  Current position of the pawn
+     * @param to    Position the pawn is moving to
      */
     private void addPromotions(Collection<ChessMove> moves, ChessPosition from, ChessPosition to) {
         PieceType[] promotions = {PieceType.QUEEN, PieceType.ROOK, PieceType.BISHOP, PieceType.KNIGHT};
@@ -221,5 +209,17 @@ public class ChessPiece {
                 "type=" + type +
                 ", color=" + color +
                 '}';
+    }
+
+    /**
+     * The various different chess piece options
+     */
+    public enum PieceType {
+        KING,
+        QUEEN,
+        BISHOP,
+        KNIGHT,
+        ROOK,
+        PAWN
     }
 }

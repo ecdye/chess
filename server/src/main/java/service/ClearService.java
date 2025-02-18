@@ -1,7 +1,9 @@
 package service;
 
-import dataaccess.*;
-import model.ClearResult;
+import dataaccess.AuthDAO;
+import dataaccess.GameDAO;
+import dataaccess.UserDAO;
+import model.results.ClearResult;
 
 public class ClearService {
     private final AuthDAO authDAO;

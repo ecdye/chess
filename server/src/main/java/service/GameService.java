@@ -1,18 +1,18 @@
 package service;
 
-import java.util.Collection;
-
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.AuthData;
-import model.CreateGameRequest;
-import model.CreateGameResult;
 import model.GameData;
-import model.JoinGameRequest;
-import model.JoinGameResult;
-import model.ListGamesRequest;
-import model.ListGamesResult;
+import model.requests.CreateGameRequest;
+import model.requests.JoinGameRequest;
+import model.requests.ListGamesRequest;
+import model.results.CreateGameResult;
+import model.results.JoinGameResult;
+import model.results.ListGamesResult;
+
+import java.util.Collection;
 
 public class GameService {
     private final AuthDAO authDAO;

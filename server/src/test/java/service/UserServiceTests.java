@@ -6,13 +6,13 @@ import org.junit.jupiter.api.Test;
 
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
-import model.LoginRequest;
-import model.LoginResult;
-import model.LogoutRequest;
-import model.LogoutResult;
-import model.RegisterRequest;
-import model.RegisterResult;
 import model.UserData;
+import model.requests.LoginRequest;
+import model.requests.LogoutRequest;
+import model.requests.RegisterRequest;
+import model.results.LoginResult;
+import model.results.LogoutResult;
+import model.results.RegisterResult;
 
 public class UserServiceTests {
     private static MemoryAuthDAO authDAO;

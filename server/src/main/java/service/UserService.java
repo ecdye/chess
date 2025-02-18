@@ -3,13 +3,13 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 import model.AuthData;
-import model.LoginRequest;
-import model.LoginResult;
-import model.LogoutRequest;
-import model.LogoutResult;
-import model.RegisterRequest;
-import model.RegisterResult;
 import model.UserData;
+import model.requests.LoginRequest;
+import model.requests.LogoutRequest;
+import model.requests.RegisterRequest;
+import model.results.LoginResult;
+import model.results.LogoutResult;
+import model.results.RegisterResult;
 
 public class UserService {
     private final AuthDAO authDAO;

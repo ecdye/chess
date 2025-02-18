@@ -1,9 +1,9 @@
 package chess;
 
+import chess.ChessPiece.PieceType;
+
 import java.util.Arrays;
 import java.util.Objects;
-
-import chess.ChessPiece.PieceType;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -16,6 +16,19 @@ public class ChessBoard {
 
     public ChessBoard() {
         board = new ChessPiece[8][8];
+    }
+
+    /**
+     * Returns true if given ChessPosition is actually a valid position on a
+     * chess board
+     *
+     * @param position
+     * @return true/false
+     */
+    public static boolean isValidPosition(ChessPosition position) {
+        int row = position.getRow();
+        int column = position.getColumn();
+        return 1 <= row && row <= 8 && 1 <= column && column <= 8;
     }
 
     /**
@@ -60,19 +73,6 @@ public class ChessBoard {
     }
 
     /**
-     * Returns true if given ChessPosition is actually a valid position on a
-     * chess board
-     *
-     * @param position
-     * @return true/false
-     */
-    public static boolean isValidPosition(ChessPosition position) {
-        int row = position.getRow();
-        int column = position.getColumn();
-        return 1 <= row && row <= 8 && 1 <= column && column <= 8;
-    }
-
-    /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
      */
@@ -99,8 +99,8 @@ public class ChessBoard {
 
     private void setKingRow(int row, ChessGame.TeamColor teamColor) {
         PieceType[] kingRow = {PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP,
-                                PieceType.QUEEN, PieceType.KING,
-                                PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK};
+                PieceType.QUEEN, PieceType.KING,
+                PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK};
         for (int i = 0; i < kingRow.length; i++) {
             board[row][i] = new ChessPiece(teamColor, kingRow[i]);
         }
@@ -123,7 +123,7 @@ public class ChessBoard {
     @Override
     public String toString() {
         return "ChessBoard{" +
-            "board=" + Arrays.deepToString(board) +
-            '}';
+                "board=" + Arrays.deepToString(board) +
+                '}';
     }
 }

@@ -1,11 +1,13 @@
 package server;
 
-import dataaccess.*;
-import model.*;
-import service.*;
-import spark.*;
-
 import com.google.gson.Gson;
+import dataaccess.*;
+import model.requests.*;
+import model.results.*;
+import service.ClearService;
+import service.GameService;
+import service.UserService;
+import spark.*;
 
 public class Server {
     private final UserDAO userDAO = new MemoryUserDAO();
@@ -15,7 +17,8 @@ public class Server {
     private final GameService gameService = new GameService(authDAO, gameDAO);
     private final UserService userService = new UserService(authDAO, userDAO);
 
-    public Server() {}
+    public Server() {
+    }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);

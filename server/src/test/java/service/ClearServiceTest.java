@@ -8,8 +8,8 @@ import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
 import model.AuthData;
-import model.ClearResult;
 import model.UserData;
+import model.results.ClearResult;
 
 public class ClearServiceTest {
     @Test

@@ -10,14 +10,14 @@ import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
-import model.CreateGameRequest;
-import model.CreateGameResult;
 import model.GameData;
-import model.JoinGameRequest;
-import model.JoinGameResult;
-import model.ListGamesRequest;
-import model.ListGamesResult;
 import model.UserData;
+import model.requests.CreateGameRequest;
+import model.requests.JoinGameRequest;
+import model.requests.ListGamesRequest;
+import model.results.CreateGameResult;
+import model.results.JoinGameResult;
+import model.results.ListGamesResult;
 
 public class GameServiceTests {
     private static GameService gameService;

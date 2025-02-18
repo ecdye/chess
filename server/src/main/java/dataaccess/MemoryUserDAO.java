@@ -1,13 +1,14 @@
 package dataaccess;
 
-import java.util.HashMap;
-
 import model.UserData;
+
+import java.util.HashMap;
 
 public class MemoryUserDAO implements UserDAO {
     private HashMap<String, UserData> userDataMap = new HashMap<>();
 
-    public MemoryUserDAO() {}
+    public MemoryUserDAO() {
+    }
 
     @Override
     public void createUser(UserData userData) {
