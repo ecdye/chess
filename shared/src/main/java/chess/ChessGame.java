@@ -409,4 +409,65 @@ public class ChessGame {
     public ChessBoard getBoard() {
         return gameBoard;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((gameBoard == null) ? 0 : gameBoard.hashCode());
+        result = prime * result + ((teamTurn == null) ? 0 : teamTurn.hashCode());
+        result = prime * result + ((whiteKingPosition == null) ? 0 : whiteKingPosition.hashCode());
+        result = prime * result + (whiteKingMoved ? 1231 : 1237);
+        result = prime * result + ((blackKingPosition == null) ? 0 : blackKingPosition.hashCode());
+        result = prime * result + (blackKingMoved ? 1231 : 1237);
+        result = prime * result + (whiteRookLMoved ? 1231 : 1237);
+        result = prime * result + (whiteRookRMoved ? 1231 : 1237);
+        result = prime * result + (blackRookLMoved ? 1231 : 1237);
+        result = prime * result + (blackRookRMoved ? 1231 : 1237);
+        result = prime * result + (passantTurn ? 1231 : 1237);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ChessGame other = (ChessGame) obj;
+        if (gameBoard == null) {
+            if (other.gameBoard != null)
+                return false;
+        } else if (!gameBoard.equals(other.gameBoard))
+            return false;
+        if (teamTurn != other.teamTurn)
+            return false;
+        if (whiteKingPosition == null) {
+            if (other.whiteKingPosition != null)
+                return false;
+        } else if (!whiteKingPosition.equals(other.whiteKingPosition))
+            return false;
+        if (whiteKingMoved != other.whiteKingMoved)
+            return false;
+        if (blackKingPosition == null) {
+            if (other.blackKingPosition != null)
+                return false;
+        } else if (!blackKingPosition.equals(other.blackKingPosition))
+            return false;
+        if (blackKingMoved != other.blackKingMoved)
+            return false;
+        if (whiteRookLMoved != other.whiteRookLMoved)
+            return false;
+        if (whiteRookRMoved != other.whiteRookRMoved)
+            return false;
+        if (blackRookLMoved != other.blackRookLMoved)
+            return false;
+        if (blackRookRMoved != other.blackRookRMoved)
+            return false;
+        if (passantTurn != other.passantTurn)
+            return false;
+        return true;
+    }
 }
