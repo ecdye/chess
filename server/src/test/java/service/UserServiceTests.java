@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.memory.MemoryAuthDAO;
+import dataaccess.memory.MemoryUserDAO;
 import model.UserData;
 import model.requests.LoginRequest;
 import model.requests.LogoutRequest;

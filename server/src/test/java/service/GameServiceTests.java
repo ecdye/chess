@@ -8,8 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 
 import chess.ChessGame;
 import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
+import dataaccess.memory.MemoryAuthDAO;
+import dataaccess.memory.MemoryGameDAO;
 import model.GameData;
 import model.UserData;
 import model.requests.CreateGameRequest;

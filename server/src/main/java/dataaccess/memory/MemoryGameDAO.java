@@ -1,13 +1,14 @@
-package dataaccess;
+package dataaccess.memory;
 
 import chess.ChessGame;
 import model.GameData;
+import dataaccess.DataAccessException;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Random;
 
-public class MemoryGameDAO implements GameDAO {
+public class MemoryGameDAO implements dataaccess.GameDAO {
     private HashMap<Integer, GameData> gameDataMap = new HashMap<>();
 
     public MemoryGameDAO() {

@@ -48,6 +48,45 @@ public class DatabaseManager {
         }
     }
 
+    static void createTables() throws DataAccessException {
+        var authStatement = """
+                CREATE TABLE IF NOT EXISTS authData (
+                    `username` varchar(256) NOT NULL UNIQUE,
+                    `authToken` varchar(256),
+                    PRIMARY KEY (`username`)
+                )
+                """;
+        var userStatement = """
+                CREATE TABLE IF NOT EXISTS userData (
+                    `username` varchar(256) NOT NULL UNIQUE,
+                    `password` varchar(256) NOT NULL,
+                    `email` varchar(256) NOT NULL UNIQUE
+                    PRIMARY KEY (`username`)
+                )
+                """;
+        var gameStatement = """
+            CREATE TABLE IF NOT EXISTS gameData (
+                `gameID` int NOT NULL UNIQUE,
+                `whiteUsername` varchar(256) NOT NULL,
+                `blackUsername` varchar(256) NOT NULL,
+                `gameName` varchar(256) NOT NULL,
+                `game` LONGTEXT NOT NULL,
+                PRIMARY KEY (`username`)
+            )
+            """;
+        String[] statements = {authStatement, userStatement, gameStatement};
+        try {
+            var conn = DriverManager.getConnection(CONNECTION_URL, USER, PASSWORD);
+            for (var statement : statements){
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
     /**
      * Create a connection to the database and sets the catalog based upon the
      * properties specified in db.properties. Connections to the database should
