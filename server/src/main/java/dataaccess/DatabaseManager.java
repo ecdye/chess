@@ -56,9 +56,9 @@ public class DatabaseManager {
     static void createTables() throws DataAccessException {
         var authStatement = """
                 CREATE TABLE IF NOT EXISTS authData (
-                    username varchar(256) NOT NULL UNIQUE,
-                    authToken varchar(256),
-                    PRIMARY KEY (username)
+                    username varchar(256) NOT NULL,
+                    authToken varchar(256) NOT NULL UNIQUE,
+                    PRIMARY KEY (authToken)
                 )
                 """;
         var userStatement = """
