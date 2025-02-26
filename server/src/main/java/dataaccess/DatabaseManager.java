@@ -48,6 +48,11 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Creates all the needed tables if they don't exist
+     *
+     * @throws DataAccessException
+     */
     static void createTables() throws DataAccessException {
         var authStatement = """
                 CREATE TABLE IF NOT EXISTS authData (
@@ -85,6 +90,17 @@ public class DatabaseManager {
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
+    }
+
+    /**
+     * Configure and setup database for chess. One stop shop to ensure we are
+     * ready to go!
+     *
+     * @throws DataAccessException
+     */
+    static void configureDatabase() throws DataAccessException {
+        createDatabase();
+        createTables();
     }
 
     /**
