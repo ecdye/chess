@@ -56,27 +56,27 @@ public class DatabaseManager {
     static void createTables() throws DataAccessException {
         var authStatement = """
                 CREATE TABLE IF NOT EXISTS authData (
-                    `username` varchar(256) NOT NULL UNIQUE,
-                    `authToken` varchar(256),
-                    PRIMARY KEY (`username`)
+                    username varchar(256) NOT NULL UNIQUE,
+                    authToken varchar(256),
+                    PRIMARY KEY (username)
                 )
                 """;
         var userStatement = """
                 CREATE TABLE IF NOT EXISTS userData (
-                    `username` varchar(256) NOT NULL UNIQUE,
-                    `password` varchar(256) NOT NULL,
-                    `email` varchar(256) NOT NULL UNIQUE
-                    PRIMARY KEY (`username`)
+                    username varchar(256) NOT NULL UNIQUE,
+                    password varchar(256) NOT NULL,
+                    email varchar(256) NOT NULL UNIQUE,
+                    PRIMARY KEY (username)
                 )
                 """;
         var gameStatement = """
             CREATE TABLE IF NOT EXISTS gameData (
-                `gameID` int NOT NULL UNIQUE,
-                `whiteUsername` varchar(256) NOT NULL,
-                `blackUsername` varchar(256) NOT NULL,
-                `gameName` varchar(256) NOT NULL,
-                `game` LONGTEXT NOT NULL,
-                PRIMARY KEY (`username`)
+                gameID int NOT NULL UNIQUE,
+                whiteUsername varchar(256) NOT NULL,
+                blackUsername varchar(256) NOT NULL,
+                gameName varchar(256) NOT NULL,
+                game LONGTEXT NOT NULL,
+                PRIMARY KEY (gameID)
             )
             """;
         String[] statements = {authStatement, userStatement, gameStatement};
@@ -120,7 +120,9 @@ public class DatabaseManager {
             for (int i = 0; i < params.length; i++) {
                 preparedStatement.setObject(i + 1, params[i]);
             }
-            return preparedStatement.executeQuery();
+            ResultSet result = preparedStatement.executeQuery();
+            result.next();
+            return result;
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }

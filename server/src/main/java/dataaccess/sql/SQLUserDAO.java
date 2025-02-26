@@ -18,7 +18,13 @@ public class SQLUserDAO implements dataaccess.UserDAO {
     public void createUser(UserData userData) throws DataAccessException {
         String statement = "INSERT INTO userData (username, password, email) VALUES (?, ?, ?)";
         String password = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
-        DatabaseManager.executeStatement(statement, userData.username(), password, userData.email());
+        try {
+            DatabaseManager.executeStatement(statement, userData.username(), password, userData.email());
+        } catch (DataAccessException e) {
+            if (e.getMessage().contains("Duplicate entry")) {
+                throw new DataAccessException("already taken");
+            }
+        }
     }
 
     @Override
@@ -36,6 +42,6 @@ public class SQLUserDAO implements dataaccess.UserDAO {
 
     @Override
     public void clear() throws DataAccessException {
-        DatabaseManager.executeStatement("TRUNCATE TABLE userData", (Object[]) null);
+        DatabaseManager.executeStatement("TRUNCATE TABLE userData");
     }
 }

@@ -4,6 +4,8 @@ import model.UserData;
 
 import java.util.HashMap;
 
+import dataaccess.DataAccessException;
+
 public class MemoryUserDAO implements dataaccess.UserDAO {
     private HashMap<String, UserData> userDataMap = new HashMap<>();
 
@@ -11,7 +13,10 @@ public class MemoryUserDAO implements dataaccess.UserDAO {
     }
 
     @Override
-    public void createUser(UserData userData) {
+    public void createUser(UserData userData) throws DataAccessException {
+        if (userDataMap.containsKey(userData.username())) {
+            throw new DataAccessException("already taken");
+        }
         userDataMap.put(userData.username(), userData);
     }
 

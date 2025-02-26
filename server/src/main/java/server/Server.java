@@ -3,6 +3,7 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.*;
 import dataaccess.memory.*;
+import dataaccess.sql.SQLUserDAO;
 import model.requests.*;
 import model.results.*;
 import service.ClearService;
@@ -11,14 +12,25 @@ import service.UserService;
 import spark.*;
 
 public class Server {
-    private final UserDAO userDAO = new MemoryUserDAO();
-    private final AuthDAO authDAO = new MemoryAuthDAO();
-    private final GameDAO gameDAO = new MemoryGameDAO();
-    private final ClearService clearService = new ClearService(authDAO, userDAO, gameDAO);
-    private final GameService gameService = new GameService(authDAO, gameDAO);
-    private final UserService userService = new UserService(authDAO, userDAO);
+    private UserDAO userDAO;
+    private AuthDAO authDAO;
+    private GameDAO gameDAO;
+    private ClearService clearService;
+    private GameService gameService;
+    private UserService userService;
 
     public Server() {
+        try {
+            userDAO = new SQLUserDAO();
+            authDAO = new MemoryAuthDAO();
+            gameDAO = new MemoryGameDAO();
+            clearService = new ClearService(authDAO, userDAO, gameDAO);
+            gameService = new GameService(authDAO, gameDAO);
+            userService = new UserService(authDAO, userDAO);
+        } catch (Exception e) {
+            System.out.println(e);
+            // Whelp
+        }
     }
 
     public int run(int desiredPort) {

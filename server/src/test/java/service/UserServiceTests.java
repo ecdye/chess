@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import dataaccess.memory.MemoryAuthDAO;
 import dataaccess.memory.MemoryUserDAO;
+import dataaccess.DataAccessException;
 import model.UserData;
 import model.requests.LoginRequest;
 import model.requests.LogoutRequest;
@@ -39,14 +40,22 @@ public class UserServiceTests {
         RegisterResult result = userService.createUser(new RegisterRequest(null, null, null));
         Assertions.assertEquals(new RegisterResult(null, null, "Error: bad request"), result);
 
-        userDAO.createUser(new UserData("Test", "password", "test@example.com"));
+        try {
+            userDAO.createUser(new UserData("Test", "password", "test@example.com"));
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+        }
         result = userService.createUser(new RegisterRequest("Test", "password", "test@example.com"));
         Assertions.assertEquals(new RegisterResult(null, null, "Error: already taken"), result);
     }
 
     @Test
     void testLoginUserGood() {
-        userDAO.createUser(new UserData("Test", "password", "test@example.com"));
+        try {
+            userDAO.createUser(new UserData("Test", "password", "test@example.com"));
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+        }
         LoginResult result = userService.loginUser(new LoginRequest("Test", "password"));
         Assertions.assertNotNull(result.username());
         Assertions.assertNotNull(result.authToken());
@@ -55,7 +64,11 @@ public class UserServiceTests {
 
     @Test
     void testLoginUserBad() {
-        userDAO.createUser(new UserData("Test", "password", "test@example.com"));
+        try {
+            userDAO.createUser(new UserData("Test", "password", "test@example.com"));
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+        }
         LoginResult result = userService.loginUser(new LoginRequest("Test", "incorrect"));
         Assertions.assertEquals(new LoginResult(null, null, "Error: unauthorized"), result);
     }

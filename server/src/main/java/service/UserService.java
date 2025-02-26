@@ -27,17 +27,13 @@ public class UserService {
         }
 
         try {
-            UserData user = userDAO.getUser(registerRequest.username());
-            if (user != null) {
-                return new RegisterResult(null, null, "Error: already taken");
-            }
-            user = new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email());
+            UserData user = new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email());
             userDAO.createUser(user);
             AuthData authData = authDAO.createAuth(user);
 
             return new RegisterResult(user.username(), authData.authToken(), null);
         } catch (DataAccessException e) {
-            return new RegisterResult(null, null, "Error:" + e);
+            return new RegisterResult(null, null, "Error: " + e.getMessage());
         }
     }
 
@@ -51,7 +47,7 @@ public class UserService {
 
             return new LoginResult(user.username(), authData.authToken(), null);
         } catch (DataAccessException e) {
-            return new LoginResult(null, null, "Error:" + e);
+            return new LoginResult(null, null, "Error: " + e.getMessage());
         }
     }
 
