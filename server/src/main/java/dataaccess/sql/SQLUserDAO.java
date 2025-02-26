@@ -1,7 +1,7 @@
 package dataaccess.sql;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Connection;
 
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -30,11 +30,15 @@ public class SQLUserDAO implements dataaccess.UserDAO {
     @Override
     public UserData getUser(String username) throws DataAccessException {
         String statement = "SELECT * FROM userData WHERE username = ?";
-        ResultSet result = DatabaseManager.queryStatement(statement, username);
-        try {
-            String password = result.getString("password");
-            String email = result.getString("email");
-            return new UserData(username, password, email);
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var result = DatabaseManager.queryStatement(conn, statement, username);
+            if (result.next()) { // Check if there is data in the ResultSet
+                String password = result.getString("password");
+                String email = result.getString("email");
+                return new UserData(username, password, email);
+            } else {
+                throw new DataAccessException("unauthorized");
+            }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }

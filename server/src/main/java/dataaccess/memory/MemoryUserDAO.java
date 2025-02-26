@@ -4,6 +4,8 @@ import model.UserData;
 
 import java.util.HashMap;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import dataaccess.DataAccessException;
 
 public class MemoryUserDAO implements dataaccess.UserDAO {
@@ -17,7 +19,8 @@ public class MemoryUserDAO implements dataaccess.UserDAO {
         if (userDataMap.containsKey(userData.username())) {
             throw new DataAccessException("already taken");
         }
-        userDataMap.put(userData.username(), userData);
+        String password = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
+        userDataMap.put(userData.username(), new UserData(userData.username(), password, userData.email()));
     }
 
     @Override
