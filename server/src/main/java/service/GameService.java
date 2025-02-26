@@ -24,63 +24,70 @@ public class GameService {
     }
 
     public CreateGameResult createGame(CreateGameRequest createGameRequest) {
-        AuthData authData = authDAO.getAuth(createGameRequest.authToken());
-        if (authData == null) {
-            return new CreateGameResult(null, "Error: unauthorized");
-        } else if (createGameRequest.gameName() == null) {
-            return new CreateGameResult(null, "Error: bad request");
-        }
-
-        int gameID;
         try {
-            gameID = gameDAO.createGame(createGameRequest.gameName());
-        } catch (DataAccessException e) {
-            return new CreateGameResult(null, "Error: " + e);
-        }
+            AuthData authData = authDAO.getAuth(createGameRequest.authToken());
+            if (authData == null) {
+                return new CreateGameResult(null, "Error: unauthorized");
+            } else if (createGameRequest.gameName() == null) {
+                return new CreateGameResult(null, "Error: bad request");
+            }
 
-        return new CreateGameResult(gameID, null);
+            int gameID;
+            gameID = gameDAO.createGame(createGameRequest.gameName());
+
+            return new CreateGameResult(gameID, null);
+        } catch (DataAccessException e) {
+            return new CreateGameResult(null, "Error: " + e.getMessage());
+        }
+    }
+
+    private GameData updateGameData(GameData gameData, String playerColor, String username) throws DataAccessException {
+        switch (playerColor) {
+            case "WHITE":
+                if (gameData.whiteUsername() != null) {
+                    throw new DataAccessException("already taken");
+                }
+                return new GameData(gameData.gameID(), username, gameData.blackUsername(), gameData.gameName(),
+                        gameData.game());
+            case "BLACK":
+                if (gameData.blackUsername() != null) {
+                    throw new DataAccessException("already taken");
+                }
+                return new GameData(gameData.gameID(), gameData.whiteUsername(), username, gameData.gameName(),
+                        gameData.game());
+            default:
+                throw new DataAccessException("bad request");
+        }
     }
 
     public JoinGameResult joinGame(JoinGameRequest joinGameRequest) {
-        AuthData authData = authDAO.getAuth(joinGameRequest.authToken());
-        if (authData == null) {
-            return new JoinGameResult("Error: unauthorized");
-        }
-
-        GameData gameData = gameDAO.getGame(joinGameRequest.gameID());
-        if (gameData == null || joinGameRequest.playerColor() == null) {
-            return new JoinGameResult("Error: bad request");
-        }
-
-        switch (joinGameRequest.playerColor()) {
-            case "WHITE":
-                if (gameData.whiteUsername() != null) {
-                    return new JoinGameResult("Error: already taken");
-                }
-                gameData = new GameData(gameData.gameID(), authData.username(), gameData.blackUsername(), gameData.gameName(), gameData.game());
-                break;
-            case "BLACK":
-                if (gameData.blackUsername() != null) {
-                    return new JoinGameResult("Error: already taken");
-                }
-                gameData = new GameData(gameData.gameID(), gameData.whiteUsername(), authData.username(), gameData.gameName(), gameData.game());
-                break;
-            default:
-                return new JoinGameResult("Error: bad request");
-        }
-
         try {
+            AuthData authData = authDAO.getAuth(joinGameRequest.authToken());
+            if (authData == null) {
+                return new JoinGameResult("Error: unauthorized");
+            }
+
+            GameData gameData = gameDAO.getGame(joinGameRequest.gameID());
+            if (gameData == null || joinGameRequest.playerColor() == null) {
+                return new JoinGameResult("Error: bad request");
+            }
+
+            gameData = updateGameData(gameData, joinGameRequest.playerColor(), authData.username());
             gameDAO.updateGame(gameData);
         } catch (DataAccessException e) {
-            return new JoinGameResult("Error: " + e);
+            return new JoinGameResult("Error: " + e.getMessage());
         }
 
         return new JoinGameResult(null);
     }
 
     public ListGamesResult listGames(ListGamesRequest listGamesRequest) {
-        AuthData authData = authDAO.getAuth(listGamesRequest.authToken());
-        if (authData == null) {
+        try {
+            AuthData authData = authDAO.getAuth(listGamesRequest.authToken());
+            if (authData == null) {
+                throw new DataAccessException(null);
+            }
+        } catch (DataAccessException e) {
             return new ListGamesResult(null, "Error: unauthorized");
         }
 

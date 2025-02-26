@@ -3,6 +3,7 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.*;
 import dataaccess.memory.*;
+import dataaccess.sql.SQLAuthDAO;
 import dataaccess.sql.SQLUserDAO;
 import model.requests.*;
 import model.results.*;
@@ -22,7 +23,7 @@ public class Server {
     public Server() {
         try {
             userDAO = new SQLUserDAO();
-            authDAO = new MemoryAuthDAO();
+            authDAO = new SQLAuthDAO();
             gameDAO = new MemoryGameDAO();
             clearService = new ClearService(authDAO, userDAO, gameDAO);
             gameService = new GameService(authDAO, gameDAO);
