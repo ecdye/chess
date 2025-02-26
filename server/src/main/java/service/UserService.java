@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
@@ -25,25 +26,33 @@ public class UserService {
             return new RegisterResult(null, null, "Error: bad request");
         }
 
-        UserData user = userDAO.getUser(registerRequest.username());
-        if (user != null) {
-            return new RegisterResult(null, null, "Error: already taken");
-        }
-        user = new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email());
-        userDAO.createUser(user);
-        AuthData authData = authDAO.createAuth(user);
+        try {
+            UserData user = userDAO.getUser(registerRequest.username());
+            if (user != null) {
+                return new RegisterResult(null, null, "Error: already taken");
+            }
+            user = new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email());
+            userDAO.createUser(user);
+            AuthData authData = authDAO.createAuth(user);
 
-        return new RegisterResult(user.username(), authData.authToken(), null);
+            return new RegisterResult(user.username(), authData.authToken(), null);
+        } catch (DataAccessException e) {
+            return new RegisterResult(null, null, "Error:" + e);
+        }
     }
 
     public LoginResult loginUser(LoginRequest loginRequest) {
-        UserData user = userDAO.getUser(loginRequest.username());
-        if (user == null || !loginRequest.password().equals(user.password())) {
-            return new LoginResult(null, null, "Error: unauthorized");
-        }
-        AuthData authData = authDAO.createAuth(user);
+        try {
+            UserData user = userDAO.getUser(loginRequest.username());
+            if (user == null || !loginRequest.password().equals(user.password())) {
+                return new LoginResult(null, null, "Error: unauthorized");
+            }
+            AuthData authData = authDAO.createAuth(user);
 
-        return new LoginResult(user.username(), authData.authToken(), null);
+            return new LoginResult(user.username(), authData.authToken(), null);
+        } catch (DataAccessException e) {
+            return new LoginResult(null, null, "Error:" + e);
+        }
     }
 
     public LogoutResult logoutUser(LogoutRequest logoutRequest) {

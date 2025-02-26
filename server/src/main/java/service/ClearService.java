@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 import model.results.ClearResult;
@@ -17,9 +18,13 @@ public class ClearService {
     }
 
     public ClearResult clearDatabase() {
-        authDAO.clear();
-        userDAO.clear();
-        gameDAO.clear();
-        return new ClearResult(null);
+        try {
+            authDAO.clear();
+            userDAO.clear();
+            gameDAO.clear();
+            return new ClearResult(null);
+        } catch (DataAccessException e) {
+            return new ClearResult("Error:" + e);
+        }
     }
 }

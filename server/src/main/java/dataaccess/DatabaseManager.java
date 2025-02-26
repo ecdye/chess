@@ -80,8 +80,7 @@ public class DatabaseManager {
             )
             """;
         String[] statements = {authStatement, userStatement, gameStatement};
-        try {
-            var conn = DriverManager.getConnection(CONNECTION_URL, USER, PASSWORD);
+        try (var conn = getConnection()) {
             for (var statement : statements){
                 try (var preparedStatement = conn.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
@@ -98,9 +97,33 @@ public class DatabaseManager {
      *
      * @throws DataAccessException
      */
-    static void configureDatabase() throws DataAccessException {
+    public static void configureDatabase() throws DataAccessException {
         createDatabase();
         createTables();
+    }
+
+    public static void executeStatement(String string, Object... params) throws DataAccessException {
+        try (var conn = getConnection()) {
+            var preparedStatement = conn.prepareStatement(string);
+            for (int i = 0; i < params.length; i++) {
+                preparedStatement.setObject(i + 1, params[i]);
+            }
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    public static ResultSet queryStatement(String string, Object... params) throws DataAccessException {
+        try (var conn = getConnection()) {
+            var preparedStatement = conn.prepareStatement(string);
+            for (int i = 0; i < params.length; i++) {
+                preparedStatement.setObject(i + 1, params[i]);
+            }
+            return preparedStatement.executeQuery();
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     /**
