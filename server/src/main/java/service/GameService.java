@@ -91,7 +91,11 @@ public class GameService {
             return new ListGamesResult(null, "Error: unauthorized");
         }
 
-        Collection<GameData> gamesList = gameDAO.listGames();
-        return new ListGamesResult(gamesList, null);
+        try {
+            Collection<GameData> gamesList = gameDAO.listGames();
+            return new ListGamesResult(gamesList, null);
+        } catch (DataAccessException e) {
+            return new ListGamesResult(null, "Error: " + e.getMessage());
+        }
     }
 }

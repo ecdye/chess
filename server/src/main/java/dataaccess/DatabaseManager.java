@@ -70,18 +70,18 @@ public class DatabaseManager {
                 )
                 """;
         var gameStatement = """
-            CREATE TABLE IF NOT EXISTS gameData (
-                gameID int NOT NULL UNIQUE,
-                whiteUsername varchar(256) NOT NULL,
-                blackUsername varchar(256) NOT NULL,
-                gameName varchar(256) NOT NULL,
-                game LONGTEXT NOT NULL,
-                PRIMARY KEY (gameID)
-            )
-            """;
-        String[] statements = {authStatement, userStatement, gameStatement};
+                CREATE TABLE IF NOT EXISTS gameData (
+                    gameID int NOT NULL UNIQUE,
+                    whiteUsername varchar(256),
+                    blackUsername varchar(256),
+                    gameName varchar(256) NOT NULL,
+                    game LONGTEXT NOT NULL,
+                    PRIMARY KEY (gameID)
+                )
+                """;
+        String[] statements = { authStatement, userStatement, gameStatement };
         try (var conn = getConnection()) {
-            for (var statement : statements){
+            for (var statement : statements) {
                 try (var preparedStatement = conn.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
                 }
@@ -114,7 +114,8 @@ public class DatabaseManager {
         }
     }
 
-    public static ResultSet queryStatement(Connection conn, String string, Object... params) throws DataAccessException {
+    public static ResultSet queryStatement(Connection conn, String string, Object... params)
+            throws DataAccessException {
         try {
             var preparedStatement = conn.prepareStatement(string);
             for (int i = 0; i < params.length; i++) {
