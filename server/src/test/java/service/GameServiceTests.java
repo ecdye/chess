@@ -1,5 +1,7 @@
 package service;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 import java.util.Collection;
 
 import org.junit.jupiter.api.Test;
@@ -10,6 +12,8 @@ import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.memory.MemoryAuthDAO;
 import dataaccess.memory.MemoryGameDAO;
+import dataaccess.AuthDAO;
+import dataaccess.GameDAO;
 import model.GameData;
 import model.UserData;
 import model.requests.CreateGameRequest;
@@ -21,14 +25,16 @@ import model.results.ListGamesResult;
 
 public class GameServiceTests {
     private static GameService gameService;
-    private static MemoryAuthDAO authDAO;
+    private static AuthDAO authDAO;
     private static String authToken;
-    private static MemoryGameDAO gameDAO;
+    private static GameDAO gameDAO;
 
     @BeforeEach
     public void setupGameService() {
         authDAO = new MemoryAuthDAO();
-        authToken = authDAO.createAuth(new UserData("Test", "password", "test@example.com")).authToken();
+        assertDoesNotThrow(() -> {
+            authToken = authDAO.createAuth(new UserData("Test", "password", "test@example.com")).authToken();
+        });
         gameDAO = new MemoryGameDAO();
         gameService = new GameService(authDAO, gameDAO);
     }
@@ -38,7 +44,9 @@ public class GameServiceTests {
         int gameID = gameService.createGame(new CreateGameRequest(authToken, "Best Game!")).gameID();
 
         GameData expectedGameData = new GameData(gameID, null, null, "Best Game!", new ChessGame());
-        Assertions.assertEquals(expectedGameData, gameDAO.getGame(gameID));
+        assertDoesNotThrow(() -> {
+            Assertions.assertEquals(expectedGameData, gameDAO.getGame(gameID));
+        });
     }
 
     @Test

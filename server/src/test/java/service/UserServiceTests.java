@@ -1,5 +1,7 @@
 package service;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import dataaccess.memory.MemoryAuthDAO;
 import dataaccess.memory.MemoryUserDAO;
 import dataaccess.DataAccessException;
+import dataaccess.AuthDAO;
+import dataaccess.UserDAO;
 import model.UserData;
 import model.requests.LoginRequest;
 import model.requests.LogoutRequest;
@@ -16,8 +20,8 @@ import model.results.LogoutResult;
 import model.results.RegisterResult;
 
 public class UserServiceTests {
-    private static MemoryAuthDAO authDAO;
-    private static MemoryUserDAO userDAO;
+    private static AuthDAO authDAO;
+    private static UserDAO userDAO;
     private static UserService userService;
 
     @BeforeEach
@@ -40,11 +44,9 @@ public class UserServiceTests {
         RegisterResult result = userService.createUser(new RegisterRequest(null, null, null));
         Assertions.assertEquals(new RegisterResult(null, null, "Error: bad request"), result);
 
-        try {
+        assertDoesNotThrow(() -> {
             userDAO.createUser(new UserData("Test", "password", "test@example.com"));
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
+        });
         result = userService.createUser(new RegisterRequest("Test", "password", "test@example.com"));
         Assertions.assertEquals(new RegisterResult(null, null, "Error: already taken"), result);
     }
@@ -75,8 +77,11 @@ public class UserServiceTests {
 
     @Test
     void testLogoutUserGood() {
-        String authToken = authDAO.createAuth(new UserData("Test", "password", "test@example.com")).authToken();
-        LogoutResult result = userService.logoutUser(new LogoutRequest(authToken));
+        final String[] authToken = new String[1];
+        assertDoesNotThrow(() -> {
+            authToken[0] = authDAO.createAuth(new UserData("Test", "password", "test@example.com")).authToken();
+        });
+        LogoutResult result = userService.logoutUser(new LogoutRequest(authToken[0]));
         Assertions.assertEquals(new LogoutResult(null), result);
     }
 
