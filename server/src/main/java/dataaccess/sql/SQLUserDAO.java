@@ -24,6 +24,7 @@ public class SQLUserDAO implements dataaccess.UserDAO {
             if (e.getMessage().contains("Duplicate entry")) {
                 throw new DataAccessException("already taken");
             }
+            throw e;
         }
     }
 
