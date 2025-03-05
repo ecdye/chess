@@ -17,14 +17,41 @@ public class ServerFacade {
     }
 
     public ClearResult clearDatabase() throws ServerFacadeException {
-        return this.makeRequest(serverURL, "/db", null, ClearResult.class);
+        return makeRequest("DELETE", "/db", null, ClearResult.class);
     }
 
     public RegisterResult register(String username, String password, String email) throws ServerFacadeException {
         RegisterRequest request = new RegisterRequest(username, password, email);
-        RegisterResult result = this.makeRequest("POST", "/user", request, RegisterResult.class);
+        RegisterResult result = makeRequest("POST", "/user", request, RegisterResult.class);
         authToken = result.authToken();
         return result;
+    }
+
+    public LoginResult login(String username, String password) throws ServerFacadeException {
+        LoginRequest request = new LoginRequest(username, password);
+        LoginResult result = makeRequest("POST", "/session", request, LoginResult.class);
+        authToken = result.authToken();
+        return result;
+    }
+
+    public LogoutResult logout() throws ServerFacadeException {
+        LogoutResult result = makeRequest("DELETE", "/session", null, LogoutResult.class);
+        authToken = null;
+        return result;
+    }
+
+    public ListGamesResult listGames() throws ServerFacadeException {
+        return makeRequest("GET", "/game", null, ListGamesResult.class);
+    }
+
+    public CreateGameResult createGame(String gameName) throws ServerFacadeException {
+        CreateGameRequest request = new CreateGameRequest(null, gameName);
+        return makeRequest("POST", "/game", request, CreateGameResult.class);
+    }
+
+    public JoinGameResult joinGame(String playerColor, int gameID) throws ServerFacadeException {
+        JoinGameRequest request = new JoinGameRequest(null, playerColor, gameID);
+        return makeRequest("PUT", "/game", request, JoinGameResult.class);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass)
@@ -34,6 +61,10 @@ public class ServerFacade {
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
+
+            if (authToken != null) {
+                http.setRequestProperty("authorization", authToken);
+            }
 
             writeBody(request, http);
             http.connect();
