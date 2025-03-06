@@ -7,7 +7,9 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.*;
 
+import model.requests.LogoutRequest;
 import model.results.LoginResult;
+import model.results.LogoutResult;
 import model.results.RegisterResult;
 import server.Server;
 import server.ServerFacade;
@@ -79,4 +81,22 @@ public class ServerFacadeTests {
         Assertions.assertNull(result[0]);
     }
 
+    @Test
+    public void testLogoutGood() {
+        final LogoutResult[] result = new LogoutResult[1];
+        assertDoesNotThrow(() -> {
+            facade.register("Test", "password", "test@example.com");
+            result[0] = facade.logout();
+        });
+        Assertions.assertNull(result[0].message());
+    }
+
+    @Test
+    public void testLogoutBad() {
+        final LogoutResult[] result = new LogoutResult[1];
+        assertThrows(ServerFacadeException.class, () -> {
+            result[0] = facade.logout();
+        });
+        Assertions.assertNull(result[0]);
+    }
 }
