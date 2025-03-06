@@ -7,14 +7,9 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.*;
 
-import model.requests.LogoutRequest;
-import model.results.CreateGameResult;
-import model.results.LoginResult;
-import model.results.LogoutResult;
-import model.results.RegisterResult;
+import model.results.*;
 import server.Server;
 import server.ServerFacade;
-import server.ServerFacadeException;
 
 
 public class ServerFacadeTests {
@@ -36,7 +31,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    @AfterEach
+    @BeforeEach
     public void testClear() {
         assertDoesNotThrow(() -> {
             facade.clearDatabase();
@@ -56,10 +51,10 @@ public class ServerFacadeTests {
     @Test
     public void testRegisterBad() {
         final RegisterResult[] result = new RegisterResult[1];
-        assertThrows(ServerFacadeException.class, () -> {
+        assertDoesNotThrow(() -> {
             result[0] = facade.register("Test", null, "test@example.com");
         });
-        Assertions.assertNull(result[0]);
+        Assertions.assertNotNull(result[0].message());
     }
 
     @Test
@@ -75,11 +70,11 @@ public class ServerFacadeTests {
     @Test
     public void testLoginBad() {
         final LoginResult[] result = new LoginResult[1];
-        assertThrows(ServerFacadeException.class, () -> {
+        assertDoesNotThrow(() -> {
             facade.register("Test", "password", "test@example.com");
             result[0] = facade.login("Test", "badPassword");
         });
-        Assertions.assertNull(result[0]);
+        Assertions.assertNotNull(result[0].message());
     }
 
     @Test
@@ -95,10 +90,10 @@ public class ServerFacadeTests {
     @Test
     public void testLogoutBad() {
         final LogoutResult[] result = new LogoutResult[1];
-        assertThrows(ServerFacadeException.class, () -> {
+        assertDoesNotThrow(() -> {
             result[0] = facade.logout();
         });
-        Assertions.assertNull(result[0]);
+        Assertions.assertNotNull(result[0].message());
     }
 
     @Test
@@ -114,9 +109,32 @@ public class ServerFacadeTests {
     @Test
     public void testCreateGameBad() {
         final CreateGameResult[] result = new CreateGameResult[1];
-        assertThrows(ServerFacadeException.class, () -> {
+        assertDoesNotThrow(() -> {
             result[0] = facade.createGame("Test");
         });
-        Assertions.assertNull(result[0]);
+        Assertions.assertNotNull(result[0].message());
+    }
+
+    @Test
+    public void testJoinGameGood() {
+        final JoinGameResult[] result = new JoinGameResult[1];
+        assertDoesNotThrow(() -> {
+            facade.register("Test", "password", "test@example.com");
+            int gameID = facade.createGame("Test").gameID();
+            result[0] = facade.joinGame("WHITE", gameID);
+        });
+        Assertions.assertNull(result[0].message());
+    }
+
+    @Test
+    public void testJoinGameBad() {
+        final JoinGameResult[] result = new JoinGameResult[1];
+        assertDoesNotThrow(() -> {
+            facade.register("Test", "password", "test@example.com");
+            int gameID = facade.createGame("Test").gameID();
+            facade.joinGame("WHITE", gameID);
+            result[0] = facade.joinGame("WHITE", gameID);
+        });
+        Assertions.assertNotNull(result[0].message());
     }
 }
