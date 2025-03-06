@@ -1,8 +1,17 @@
 package client;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.UUID;
+
 import org.junit.jupiter.api.*;
+
+import model.results.LoginResult;
+import model.results.RegisterResult;
 import server.Server;
 import server.ServerFacade;
+import server.ServerFacadeException;
 
 
 public class ServerFacadeTests {
@@ -23,10 +32,51 @@ public class ServerFacadeTests {
         server.stop();
     }
 
+    @Test
+    @AfterEach
+    public void testClear() {
+        assertDoesNotThrow(() -> {
+            facade.clearDatabase();
+        });
+    }
+
 
     @Test
-    public void sampleTest() {
-        Assertions.assertTrue(true);
+    public void testRegisterGood() {
+        final RegisterResult[] result = new RegisterResult[1];
+        assertDoesNotThrow(() -> {
+            result[0] = facade.register("Test", "password", "test@example.com");
+        });
+        Assertions.assertEquals(UUID.fromString(result[0].authToken()).toString(), result[0].authToken());
+    }
+
+    @Test
+    public void testRegisterBad() {
+        final RegisterResult[] result = new RegisterResult[1];
+        assertThrows(ServerFacadeException.class, () -> {
+            result[0] = facade.register("Test", null, "test@example.com");
+        });
+        Assertions.assertNull(result[0]);
+    }
+
+    @Test
+    public void testLoginGood() {
+        final LoginResult[] result = new LoginResult[1];
+        assertDoesNotThrow(() -> {
+            facade.register("Test", "password", "test@example.com");
+            result[0] = facade.login("Test", "password");
+        });
+        Assertions.assertEquals(UUID.fromString(result[0].authToken()).toString(), result[0].authToken());
+    }
+
+    @Test
+    public void testLoginBad() {
+        final LoginResult[] result = new LoginResult[1];
+        assertThrows(ServerFacadeException.class, () -> {
+            facade.register("Test", "password", "test@example.com");
+            result[0] = facade.login("Test", "badPassword");
+        });
+        Assertions.assertNull(result[0]);
     }
 
 }
