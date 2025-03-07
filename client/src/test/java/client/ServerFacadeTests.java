@@ -1,7 +1,6 @@
 package client;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.UUID;
 
@@ -134,6 +133,27 @@ public class ServerFacadeTests {
             int gameID = facade.createGame("Test").gameID();
             facade.joinGame("WHITE", gameID);
             result[0] = facade.joinGame("WHITE", gameID);
+        });
+        Assertions.assertNotNull(result[0].message());
+    }
+
+    @Test
+    public void testListGamesGood() {
+        final ListGamesResult[] result = new ListGamesResult[1];
+        assertDoesNotThrow(() -> {
+            facade.register("Test", "password", "test@example.com");
+            facade.createGame("Game 1");
+            facade.createGame("Game 2");
+            result[0] = facade.listGames();
+        });
+        Assertions.assertEquals(result[0].games().size(), 2);
+    }
+
+    @Test
+    public void testListGamesBad() {
+        final ListGamesResult[] result = new ListGamesResult[1];
+        assertDoesNotThrow(() -> {
+            result[0] = facade.listGames();
         });
         Assertions.assertNotNull(result[0].message());
     }
