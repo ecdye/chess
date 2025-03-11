@@ -5,9 +5,12 @@ import static ui.PreLoginMenu.printError;
 
 import java.util.Scanner;
 
+import chess.ChessGame;
 import client.ChessClient;
 import model.GameData;
+import model.results.JoinGameResult;
 import model.results.ListGamesResult;
+import server.ServerFacadeException;
 
 public class PostLoginMenu {
     private ChessClient client;
@@ -58,6 +61,13 @@ public class PostLoginMenu {
                 handleListGames();
                 break;
 
+            case "join":
+                if (input.length != 3 && (input[2] != "WHITE" || input[2] != "BLACK")) {
+                    printError("invalid arguments");
+                    printCommand("join <ID> <WHITE|BLACK>", "a game");
+                }
+                handleJoin(input[1], input[2]);
+
             case "logout":
                 // Logout handled in run method
                 break;
@@ -79,12 +89,7 @@ public class PostLoginMenu {
 
     private void handleListGames() {
         try {
-            ListGamesResult result = client.server.listGames();
-            if (result.message() != null) {
-                printError(result.message());
-                return;
-            }
-            GameData[] games = result.games().toArray(new GameData[1]);
+            GameData[] games = gamesList();
 
             for (int i = 0; i < games.length; ++i) {
                 boolean player = false;
@@ -104,6 +109,49 @@ public class PostLoginMenu {
         } catch (Exception e) {
             printError(e.getMessage());
         }
+    }
+
+    private void handleJoin(String name, String color) {
+        try {
+            GameData[] games = gamesList();
+            int id = -1;
+            int i = 0;
+
+            for (; i < games.length; ++i) {
+                if (games[i].gameName().equals(name)) {
+                    id = games[i].gameID();
+                    break;
+                }
+            }
+
+            if (id == -1) {
+                printError("Game not found");
+                return;
+            }
+
+            JoinGameResult result = client.server.joinGame(color, id);
+            if (result.message() != null) {
+                printError(result.message());
+                return;
+            }
+
+            printChessBoard(games[i].game());
+        } catch (Exception e) {
+            printError(e.getMessage());
+        }
+    }
+
+    private void printChessBoard(ChessGame game) {
+        System.out.println("Yeah, I'll get there RIP");
+    }
+
+    private GameData[] gamesList() throws ServerFacadeException {
+        ListGamesResult result = client.server.listGames();
+        if (result.message() != null) {
+            printError(result.message());
+            return null;
+        }
+        return result.games().toArray(new GameData[1]);
     }
 
 }
