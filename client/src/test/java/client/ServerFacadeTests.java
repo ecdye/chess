@@ -22,6 +22,9 @@ public class ServerFacadeTests {
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
         facade = new ServerFacade(port);
+        assertDoesNotThrow(() -> {
+            facade.clearDatabase();
+        });
     }
 
     @AfterAll
@@ -30,7 +33,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    @BeforeEach
+    @AfterEach
     public void testClear() {
         assertDoesNotThrow(() -> {
             facade.clearDatabase();

@@ -19,6 +19,7 @@ public class AuthDAOTests {
     public static void setupAuthDAO() {
         assertDoesNotThrow(() -> {
             authDAO = new SQLAuthDAO();
+            authDAO.clear();
         });
     }
 

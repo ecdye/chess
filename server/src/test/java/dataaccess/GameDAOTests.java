@@ -21,6 +21,7 @@ public class GameDAOTests {
     public static void setupGameDAO() {
         assertDoesNotThrow(() -> {
             gameDAO = new SQLGameDAO();
+            gameDAO.clear();
         });
     }
 

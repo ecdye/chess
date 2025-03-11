@@ -18,6 +18,7 @@ public class UserDAOTest {
     public static void setupUserDAO() {
         assertDoesNotThrow(() -> {
             userDAO = new SQLUserDAO();
+            userDAO.clear();
         });
     }
 

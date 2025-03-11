@@ -16,6 +16,7 @@ import chess.ChessPosition;
 import chess.ChessGame.TeamColor;
 import client.ChessClient;
 import model.GameData;
+import model.results.CreateGameResult;
 import model.results.JoinGameResult;
 import model.results.ListGamesResult;
 import server.ServerFacadeException;
@@ -97,7 +98,11 @@ public class PostLoginMenu {
 
     private void handleCreateGame(String name) {
         try {
-            client.server.createGame(name);
+            CreateGameResult result = client.server.createGame(name);
+            if (result.message() != null) {
+                printError(result.message());
+                return;
+            }
             System.out.println("Game has been successfully created!");
         } catch (Exception e) {
             printError(e.getMessage());
