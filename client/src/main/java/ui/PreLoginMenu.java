@@ -9,24 +9,32 @@ import server.ServerFacadeException;
 
 public class PreLoginMenu {
     private ChessClient client;
+    private final Scanner s;
 
     public PreLoginMenu(int port) {
         client = new ChessClient(port);
+        s = new Scanner(System.in);
     }
 
     public void run() {
-        Scanner s = new Scanner(System.in);
         String input = "";
         while (!input.equals("exit")) {
             System.out.printf("\n[LOGGED OUT] >>> ");
-            input = s.nextLine();
-            eval(input.split(" "));
+            try {
+                input = s.nextLine();
+                if (input.equals("exit")) {
+                    System.out.println("Bye!");
+                    break;
+                }
+                eval(input.split(" "));
+            } catch (Exception e) {
+                printError(e.getMessage());
+            }
         }
         s.close();
     }
 
     private void eval(String[] input) {
-
         switch (input[0].toLowerCase()) {
             case "help":
                 printCommand("register <USERNAME> <PASSWORD> <EMAIL>", "to create an account");
@@ -66,7 +74,12 @@ public class PreLoginMenu {
     private void handleRegister(String[] args) {
         try {
             RegisterResult result = client.server.register(args[1], args[2], args[3]);
-            // Now activate logged in mode
+            if (result.message() != null) {
+                printError(result.message());
+                return;
+            }
+            new PostLoginMenu(client, result.username(), s).run();
+            System.out.println("Welcome back to the main menu!");
         } catch (ServerFacadeException e) {
             printError(e.getMessage());
         }
@@ -75,19 +88,24 @@ public class PreLoginMenu {
     private void handleLogin(String[] args) {
         try {
             LoginResult result = client.server.login(args[1], args[2]);
-            // Now activate logged in mode
+            if (result.message() != null) {
+                printError(result.message());
+                return;
+            }
+            new PostLoginMenu(client, result.username(), s).run();
+            System.out.println("Welcome back to the main menu!");
         } catch (ServerFacadeException e) {
             printError(e.getMessage());
         }
     }
 
-    private void printCommand(String usage, String desc) {
+    static void printCommand(String usage, String desc) {
         System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE + usage + EscapeSequences.RESET_TEXT_COLOR);
         System.out.print(" - ");
         System.out.println(EscapeSequences.SET_TEXT_COLOR_MAGENTA + desc + EscapeSequences.RESET_TEXT_COLOR);
     }
 
-    private void printError(String message) {
+    static void printError(String message) {
         System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Error: " + EscapeSequences.RESET_TEXT_COLOR + message);
     }
 }
