@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Scanner;
 
 import chess.ChessBoard;
@@ -25,6 +26,7 @@ public class PostLoginMenu {
     private ChessClient client;
     private final String username;
     private final Scanner s;
+    private HashMap<Integer, Integer> gameMap = new HashMap<>();
 
     public PostLoginMenu(ChessClient client, String username, Scanner s) {
         this.client = client;
@@ -33,14 +35,16 @@ public class PostLoginMenu {
         System.out.println("Logged in as " + username);
     }
 
-    public void run() {
+    public boolean run() {
         String input = "";
         while (true) {
             System.out.printf("\n[LOGGED IN] >>> ");
             input = s.nextLine();
             if (input.equals("logout")) {
                 System.out.println("Logged out " + username);
-                break;
+                return false;
+            } else if (input.equals("quit")) {
+                return true;
             }
             eval(input.split(" "));
         }
@@ -71,9 +75,13 @@ public class PostLoginMenu {
                 break;
 
             case "join":
-                if (input.length != 3 && (input[2] != "WHITE" || input[2] != "BLACK")) {
+                if (input.length != 3 || (!input[2].equals("WHITE") && !input[2].equals("BLACK"))) {
                     printError("invalid arguments");
                     printCommand("join <ID> <WHITE|BLACK>", "a game");
+                    break;
+                } else if (gameMap.isEmpty()) {
+                    printError("Please list games to find correct IDs before joining!");
+                    break;
                 }
                 handleJoin(input[1], input[2]);
                 break;
@@ -82,6 +90,7 @@ public class PostLoginMenu {
                 if (input.length != 2) {
                     printError("invalid number of arguments");
                     printCommand("observe <ID>", "a game");
+                    break;
                 }
                 handleObserve(input[1]);
                 break;
@@ -91,7 +100,7 @@ public class PostLoginMenu {
                 break;
 
             default:
-                printError("unknown command: " + input);
+                printError("unknown command: " + input[0]);
                 break;
         }
     }
@@ -115,7 +124,8 @@ public class PostLoginMenu {
 
             for (int i = 0; i < games.length; ++i) {
                 boolean player = false;
-                System.out.println(i + ". " + games[i].gameName() + ":");
+                System.out.println(i + 1 + ". " + games[i].gameName() + ":");
+                gameMap.put(i + 1, games[i].gameID());
                 if (games[i].whiteUsername() != null) {
                     System.out.println("    White: " + games[i].whiteUsername());
                     player = true;
@@ -135,7 +145,7 @@ public class PostLoginMenu {
 
     private void handleJoin(String name, String color) {
         try {
-            GameData gameData = selectGameByName(name);
+            GameData gameData = selectGame(name);
             if (gameData == null) {
                 printError("Game not found");
                 return;
@@ -155,7 +165,7 @@ public class PostLoginMenu {
 
     private void handleObserve(String name) {
         try {
-            GameData gameData = selectGameByName(name);
+            GameData gameData = selectGame(name);
             if (gameData == null) {
                 printError("Game not found");
                 return;
@@ -167,10 +177,10 @@ public class PostLoginMenu {
         }
     }
 
-    private GameData selectGameByName(String name) throws ServerFacadeException {
+    private GameData selectGame(String name) throws ServerFacadeException {
         GameData[] games = gamesList();
         for (GameData game : games) {
-            if (game.gameName().equals(name)) {
+            if (game.gameID() == gameMap.get(Integer.parseInt(name))) {
                 return game;
             }
         }

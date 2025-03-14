@@ -18,11 +18,11 @@ public class PreLoginMenu {
 
     public void run() {
         String input = "";
-        while (!input.equals("exit")) {
+        while (!input.equals("quit")) {
             System.out.printf("\n[LOGGED OUT] >>> ");
             try {
                 input = s.nextLine();
-                if (input.equals("exit")) {
+                if (input.equals("quit")) {
                     System.out.println("Bye!");
                     break;
                 }
@@ -39,11 +39,11 @@ public class PreLoginMenu {
             case "help":
                 printCommand("register <USERNAME> <PASSWORD> <EMAIL>", "to create an account");
                 printCommand("login <USERNAME> <PASSWORD>", "to play a game");
-                printCommand("exit", "to stop playing chess");
+                printCommand("quit", "to stop playing chess");
                 printCommand("help", "display this help message");
                 break;
 
-            case "exit":
+            case "quit":
                 System.out.println("Bye!");
                 break;
 
@@ -66,7 +66,7 @@ public class PreLoginMenu {
                 break;
 
             default:
-                printError("unknown command: " + input);
+                printError("unknown command: " + input[0]);
                 break;
         }
     }
@@ -78,8 +78,7 @@ public class PreLoginMenu {
                 printError(result.message());
                 return;
             }
-            new PostLoginMenu(client, result.username(), s).run();
-            System.out.println("Welcome back to the main menu!");
+            handlePostLogin(result.username());
         } catch (ServerFacadeException e) {
             printError(e.getMessage());
         }
@@ -92,11 +91,20 @@ public class PreLoginMenu {
                 printError(result.message());
                 return;
             }
-            new PostLoginMenu(client, result.username(), s).run();
-            System.out.println("Welcome back to the main menu!");
+            handlePostLogin(result.username());
         } catch (ServerFacadeException e) {
             printError(e.getMessage());
         }
+    }
+
+    private void handlePostLogin(String username) {
+        boolean exit = new PostLoginMenu(client, username, s).run();
+        if (exit) {
+            System.out.println("Bye!");
+            s.close();
+            System.exit(0);
+        }
+        System.out.println("Welcome back to the main menu!");
     }
 
     static void printCommand(String usage, String desc) {
@@ -106,6 +114,9 @@ public class PreLoginMenu {
     }
 
     static void printError(String message) {
+        if (message.startsWith("Error: ")) {
+            message = message.substring(7);
+        }
         System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Error: " + EscapeSequences.RESET_TEXT_COLOR + message);
     }
 }
