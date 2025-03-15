@@ -58,6 +58,7 @@ public class PostLoginMenu {
                 printCommand("join <ID> <WHITE|BLACK>", "a game");
                 printCommand("observe <ID>", "a game");
                 printCommand("logout", "when you are done");
+                printCommand("quit", "to stop playing chess");
                 printCommand("help", "print this message");
                 break;
 
@@ -147,7 +148,7 @@ public class PostLoginMenu {
         try {
             GameData gameData = selectGame(name);
             if (gameData == null) {
-                printError("Game not found");
+                // printError("Game not found");
                 return;
             }
 
@@ -167,7 +168,7 @@ public class PostLoginMenu {
         try {
             GameData gameData = selectGame(name);
             if (gameData == null) {
-                printError("Game not found");
+                // printError("Game not found");
                 return;
             }
 
@@ -178,9 +179,22 @@ public class PostLoginMenu {
     }
 
     private GameData selectGame(String name) throws ServerFacadeException {
+        int gameID = -1;
+        try {
+            gameID = Integer.parseInt(name);
+        } catch (NumberFormatException e) {
+            printError("Invalid game ID, should be an integer!");
+            return null;
+        }
+
+        if (!gameMap.containsKey(gameID)) {
+            printError("No game ID: " + gameID);
+            return null;
+        }
+
         GameData[] games = gamesList();
         for (GameData game : games) {
-            if (game.gameID() == gameMap.get(Integer.parseInt(name))) {
+            if (game.gameID() == gameMap.get(gameID)) {
                 return game;
             }
         }
@@ -200,11 +214,13 @@ public class PostLoginMenu {
     private void printChessBoard(ChessGame game, boolean blackView) {
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(EscapeSequences.ERASE_SCREEN);
+        out.print(EscapeSequences.SET_TEXT_BOLD);
         drawLetters(out, blackView);
         drawBoard(out, blackView, game.getBoard());
         drawLetters(out, blackView);
         out.print(EscapeSequences.RESET_BG_COLOR);
         out.print(EscapeSequences.RESET_TEXT_COLOR);
+        out.print(EscapeSequences.RESET_TEXT_BOLD_FAINT);
     }
 
     private void drawLetters(PrintStream out, boolean blackView) {
@@ -224,7 +240,7 @@ public class PostLoginMenu {
 
     private void drawBoard(PrintStream out, boolean blackView, ChessBoard board) {
         ArrayList<String> rows = new ArrayList<>(Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8"));
-        if (blackView) {
+        if (!blackView) {
             rows = new ArrayList<>(rows.reversed());
         }
         for (int r = 0; r < 8; ++r) {
@@ -235,8 +251,9 @@ public class PostLoginMenu {
                 } else {
                     out.print(EscapeSequences.SET_BG_COLOR_BLACK);
                 }
-                int properRow = blackView ? 8 - r : r + 1;
-                ChessPiece piece = board.getPiece(new ChessPosition(properRow, c + 1));
+                int properRow = !blackView ? 8 - r : r + 1;
+                int properCol = !blackView ? c + 1 : 8 - c;
+                ChessPiece piece = board.getPiece(new ChessPosition(properRow, properCol));
                 if (piece != null) {
                     out.print(getPieceEscapeSequence(piece));
                 } else {
