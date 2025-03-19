@@ -11,8 +11,17 @@ import model.requests.ListGamesRequest;
 import model.results.CreateGameResult;
 import model.results.JoinGameResult;
 import model.results.ListGamesResult;
+import websocket.messages.ErrorMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
+
+import static websocket.messages.ServerMessage.ServerMessageType.ERROR;
+import static websocket.messages.ServerMessage.ServerMessageType.LOAD_GAME;
 
 import java.util.Collection;
+
+import chess.ChessMove;
+import chess.InvalidMoveException;
 
 public class GameService {
     private final AuthDAO authDAO;
@@ -41,23 +50,20 @@ public class GameService {
         }
     }
 
-    private GameData updateGameData(GameData gameData, String playerColor, String username) throws DataAccessException {
-        switch (playerColor) {
-            case "WHITE":
-                if (gameData.whiteUsername() != null) {
-                    throw new DataAccessException("already taken");
-                }
-                return new GameData(gameData.gameID(), username, gameData.blackUsername(), gameData.gameName(),
-                        gameData.game());
-            case "BLACK":
-                if (gameData.blackUsername() != null) {
-                    throw new DataAccessException("already taken");
-                }
-                return new GameData(gameData.gameID(), gameData.whiteUsername(), username, gameData.gameName(),
-                        gameData.game());
-            default:
-                throw new DataAccessException("bad request");
+    public ServerMessage makeMove(int gameID, ChessMove move) throws DataAccessException {
+        GameData gameData = gameDAO.getGame(gameID);
+        if (gameData == null) {
+            return new ErrorMessage(ERROR, "Error: no game");
         }
+
+        try {
+            gameData.game().makeMove(move);
+        } catch (InvalidMoveException e) {
+            return new ErrorMessage(ERROR, "Error: invalid move");
+        }
+
+        gameDAO.updateGame(gameData);
+        return new NotificationMessage(LOAD_GAME, "?");
     }
 
     public JoinGameResult joinGame(JoinGameRequest joinGameRequest) {
@@ -72,7 +78,7 @@ public class GameService {
                 return new JoinGameResult("Error: bad request");
             }
 
-            gameData = updateGameData(gameData, joinGameRequest.playerColor(), authData.username());
+            gameData = setPlayerName(gameData, joinGameRequest.playerColor(), authData.username());
             gameDAO.updateGame(gameData);
         } catch (DataAccessException e) {
             return new JoinGameResult("Error: " + e.getMessage());
@@ -96,6 +102,25 @@ public class GameService {
             return new ListGamesResult(gamesList, null);
         } catch (DataAccessException e) {
             return new ListGamesResult(null, "Error: " + e.getMessage());
+        }
+    }
+
+    private GameData setPlayerName(GameData gameData, String playerColor, String username) throws DataAccessException {
+        switch (playerColor) {
+            case "WHITE":
+                if (gameData.whiteUsername() != null) {
+                    throw new DataAccessException("already taken");
+                }
+                return new GameData(gameData.gameID(), username, gameData.blackUsername(), gameData.gameName(),
+                        gameData.game());
+            case "BLACK":
+                if (gameData.blackUsername() != null) {
+                    throw new DataAccessException("already taken");
+                }
+                return new GameData(gameData.gameID(), gameData.whiteUsername(), username, gameData.gameName(),
+                        gameData.game());
+            default:
+                throw new DataAccessException("bad request");
         }
     }
 }
