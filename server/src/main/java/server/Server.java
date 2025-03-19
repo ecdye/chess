@@ -30,7 +30,7 @@ public class Server {
             clearService = new ClearService(authDAO, userDAO, gameDAO);
             gameService = new GameService(authDAO, gameDAO);
             userService = new UserService(authDAO, userDAO);
-            websocketHandler = new WebsocketHandler(gameService);
+            websocketHandler = new WebsocketHandler(gameService, authDAO);
         } catch (Exception e) {
             System.out.println(e);
             // Whelp
