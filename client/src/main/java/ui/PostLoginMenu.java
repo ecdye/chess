@@ -23,7 +23,7 @@ import model.results.ListGamesResult;
 import server.ServerFacadeException;
 
 public class PostLoginMenu {
-    private ChessClient client;
+    private final ChessClient client;
     private final String username;
     private final Scanner s;
     private HashMap<Integer, Integer> gameMap = new HashMap<>();
@@ -171,8 +171,9 @@ public class PostLoginMenu {
                 // printError("Game not found");
                 return;
             }
+            new LiveMenu(client, s, false).run(gameData.gameID());
 
-            printChessBoard(gameData.game(), false);
+            // printChessBoard(gameData.game(), false);
         } catch (Exception e) {
             printError(e.getMessage());
         }
@@ -211,7 +212,7 @@ public class PostLoginMenu {
     }
 
 
-    private void printChessBoard(ChessGame game, boolean blackView) {
+    static void printChessBoard(ChessGame game, boolean blackView) {
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(EscapeSequences.ERASE_SCREEN);
         out.print(EscapeSequences.SET_TEXT_BOLD);
@@ -223,7 +224,7 @@ public class PostLoginMenu {
         out.print(EscapeSequences.RESET_TEXT_BOLD_FAINT);
     }
 
-    private void drawLetters(PrintStream out, boolean blackView) {
+    static void drawLetters(PrintStream out, boolean blackView) {
         ArrayList<String> columns = new ArrayList<>(Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h"));
         if (blackView) {
             columns = new ArrayList<>(columns.reversed());
@@ -238,7 +239,7 @@ public class PostLoginMenu {
         out.println(EscapeSequences.EMPTY);
     }
 
-    private void drawBoard(PrintStream out, boolean blackView, ChessBoard board) {
+    static void drawBoard(PrintStream out, boolean blackView, ChessBoard board) {
         ArrayList<String> rows = new ArrayList<>(Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8"));
         if (!blackView) {
             rows = new ArrayList<>(rows.reversed());
@@ -264,7 +265,7 @@ public class PostLoginMenu {
         }
     }
 
-    private String getPieceEscapeSequence(ChessPiece piece) {
+    static String getPieceEscapeSequence(ChessPiece piece) {
         switch (piece.getPieceType()) {
             case KING:
                 return piece.getTeamColor() == TeamColor.WHITE ? EscapeSequences.WHITE_KING : EscapeSequences.BLACK_KING;
