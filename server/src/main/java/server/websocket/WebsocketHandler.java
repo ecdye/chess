@@ -10,10 +10,12 @@ import model.GameData;
 import service.GameService;
 import websocket.commands.MoveCommand;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
+import static websocket.messages.ServerMessage.ServerMessageType.ERROR;
 import static websocket.messages.ServerMessage.ServerMessageType.LOAD_GAME;
 import static websocket.messages.ServerMessage.ServerMessageType.NOTIFICATION;
 
@@ -51,16 +53,32 @@ public class WebsocketHandler {
                     moveNotification(move, session);
                     break;
 
+                case LEAVE:
+                    handleLeave(command, session);
+
                 default:
                     break;
             }
         } catch (DataAccessException | IOException e) {
             // Send an error message over the WS
+            try {
+                session.getRemote().sendString(new Gson().toJson(new ErrorMessage(ERROR, e.getMessage())));
+            } catch (IOException ee) {
+                System.out.println(ee.getMessage());
+            }
         }
     }
 
-    private void broadcast(HashSet<Session> clients, ServerMessage message) throws IOException{
+    @OnWebSocketClose
+    public void onClose(Session session, int statusCode, String reason) {
+        allClients.values().forEach(clients -> clients.remove(session));
+    }
+
+    private void broadcast(HashSet<Session> clients, ServerMessage message, Session ignore) throws IOException{
         for (Session s : clients) {
+            if (ignore != null && s.equals(ignore)) {
+                continue;
+            }
             s.getRemote().sendString(new Gson().toJson(message));
         }
     }
@@ -84,7 +102,25 @@ public class WebsocketHandler {
         } else {
             m = new NotificationMessage(NOTIFICATION, username + " joined as an observer");
         }
-        broadcast(clients, m);
+        broadcast(clients, m, null);
+    }
+
+    private void handleLeave(UserGameCommand command, Session session) throws DataAccessException, IOException {
+        GameData game = gameService.getGame(command.getGameID());
+        String username = authDAO.getAuth(command.getAuthToken()).username();
+        NotificationMessage m;
+        if (game.blackUsername().equals(username)) {
+            game = new GameData(game.gameID(), game.whiteUsername(), null, game.gameName(), game.game());
+            m = new NotificationMessage(NOTIFICATION, username + " left game");
+        } else if (game.whiteUsername().equals(username)) {
+            game = new GameData(game.gameID(), null, game.blackUsername(), game.gameName(), game.game());
+            m = new NotificationMessage(NOTIFICATION, username + " left game");
+        } else {
+            m = new NotificationMessage(NOTIFICATION, username + " stopped observing");
+        }
+        gameService.setGame(game);
+        broadcast(allClients.get(game.gameID()), m, session);
+        session.close();
     }
 
     private void moveNotification(MoveCommand move, Session session) {

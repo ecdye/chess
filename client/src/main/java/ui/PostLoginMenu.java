@@ -146,19 +146,18 @@ public class PostLoginMenu {
 
     private void handleJoin(String name, String color) {
         try {
-            GameData gameData = selectGame(name);
-            if (gameData == null) {
-                // printError("Game not found");
+            Integer gameID = selectGame(name);
+            if (gameID == null) {
                 return;
             }
 
-            JoinGameResult result = client.server.joinGame(color, gameData.gameID());
+            JoinGameResult result = client.server.joinGame(color, gameID);
             if (result.message() != null) {
                 printError(result.message());
                 return;
             }
 
-            printChessBoard(gameData.game(), color.equals("BLACK"));
+            new LiveMenu(client, s, color.equals("BLACK")).run(gameID);
         } catch (Exception e) {
             printError(e.getMessage());
         }
@@ -166,20 +165,17 @@ public class PostLoginMenu {
 
     private void handleObserve(String name) {
         try {
-            GameData gameData = selectGame(name);
-            if (gameData == null) {
-                // printError("Game not found");
+            Integer gameID = selectGame(name);
+            if (gameID == null) {
                 return;
             }
-            new LiveMenu(client, s, false).run(gameData.gameID());
-
-            // printChessBoard(gameData.game(), false);
+            new LiveMenu(client, s, false).run(gameID);
         } catch (Exception e) {
             printError(e.getMessage());
         }
     }
 
-    private GameData selectGame(String name) throws ServerFacadeException {
+    private Integer selectGame(String name) throws ServerFacadeException {
         int gameID = -1;
         try {
             gameID = Integer.parseInt(name);
@@ -192,14 +188,9 @@ public class PostLoginMenu {
             printError("No game ID: " + gameID);
             return null;
         }
+        gameID = gameMap.get(gameID);
 
-        GameData[] games = gamesList();
-        for (GameData game : games) {
-            if (game.gameID() == gameMap.get(gameID)) {
-                return game;
-            }
-        }
-        return null;
+        return gameID;
     }
 
     private GameData[] gamesList() throws ServerFacadeException {

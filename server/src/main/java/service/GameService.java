@@ -109,6 +109,10 @@ public class GameService {
         return gameDAO.getGame(gameID);
     }
 
+    public void setGame(GameData game) throws DataAccessException {
+        gameDAO.updateGame(game);
+    }
+
     private GameData setPlayerName(GameData gameData, String playerColor, String username) throws DataAccessException {
         switch (playerColor) {
             case "WHITE":

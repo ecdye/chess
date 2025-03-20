@@ -11,6 +11,7 @@ import ui.LiveMenu;
 import websocket.commands.UserGameCommand;
 import websocket.commands.UserGameCommand.CommandType;
 import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 public class WebsocketFacade extends Endpoint {
@@ -31,6 +32,10 @@ public class WebsocketFacade extends Endpoint {
                         LoadGameMessage game = new Gson().fromJson(message, LoadGameMessage.class);
                         menu.updateGame(game.game);
                         break;
+
+                    case NOTIFICATION:
+                        NotificationMessage nm = new Gson().fromJson(message, NotificationMessage.class);
+                        menu.displayNotification(nm.message);
                     default:
                         break;
                 }
@@ -40,6 +45,11 @@ public class WebsocketFacade extends Endpoint {
 
     public void connect(String authToken, int gameID) throws IOException {
         UserGameCommand command = new UserGameCommand(CommandType.CONNECT, authToken, gameID);
+        this.session.getBasicRemote().sendText(new Gson().toJson(command));
+    }
+
+    public void leaveGame(String authToken, int gameID) throws IOException {
+        UserGameCommand command = new UserGameCommand(CommandType.LEAVE, authToken, gameID);
         this.session.getBasicRemote().sendText(new Gson().toJson(command));
     }
 
