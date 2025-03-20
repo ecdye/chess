@@ -49,8 +49,7 @@ public class WebsocketHandler {
 
                 case MAKE_MOVE:
                     MoveCommand move = new Gson().fromJson(message, MoveCommand.class);
-                    gameService.makeMove(move.getGameID(), move.getMove());
-                    moveNotification(move, session);
+                    handleMove(move, session);
                     break;
 
                 case LEAVE:
@@ -96,9 +95,9 @@ public class WebsocketHandler {
         String black = game.blackUsername();
         String white = game.whiteUsername();
         NotificationMessage m;
-        if (username.equals(black)) {
+        if (black != null && username.equals(black)) {
             m = new NotificationMessage(NOTIFICATION, username + " joined as black");
-        } else if (username.equals(white)) {
+        } else if (white != null && username.equals(white)) {
             m = new NotificationMessage(NOTIFICATION, username + " joined as white");
         } else {
             m = new NotificationMessage(NOTIFICATION, username + " joined as an observer");
@@ -106,25 +105,35 @@ public class WebsocketHandler {
         broadcast(clients, m, session);
     }
 
-    private void handleLeave(UserGameCommand command, Session session) throws DataAccessException, IOException {
+    private void handleLeave(UserGameCommand command, Session session) throws Exception {
         GameData game = gameService.getGame(command.getGameID());
         String username = authDAO.getAuth(command.getAuthToken()).username();
+
+        String black = game.blackUsername();
+        String white = game.whiteUsername();
         NotificationMessage m;
-        if (game.blackUsername().equals(username)) {
+        if (black != null && username.equals(black)) {
             game = new GameData(game.gameID(), game.whiteUsername(), null, game.gameName(), game.game());
             m = new NotificationMessage(NOTIFICATION, username + " left game");
-        } else if (game.whiteUsername().equals(username)) {
+        } else if (white != null && username.equals(white)) {
             game = new GameData(game.gameID(), null, game.blackUsername(), game.gameName(), game.game());
             m = new NotificationMessage(NOTIFICATION, username + " left game");
         } else {
             m = new NotificationMessage(NOTIFICATION, username + " stopped observing");
         }
-        gameService.setGame(game);
         broadcast(allClients.get(game.gameID()), m, session);
+        gameService.setGame(game);
         session.close();
     }
 
-    private void moveNotification(MoveCommand move, Session session) {
-        // Broadcast
+    private void handleMove(MoveCommand move, Session session) throws Exception {
+        gameService.makeMove(move.getGameID(), move.getMove());
+        GameData game = gameService.getGame(move.getGameID());
+
+        LoadGameMessage message = new LoadGameMessage(LOAD_GAME, game.game());
+        broadcast(allClients.get(move.getGameID()), message, null);
+
+        NotificationMessage nm = new NotificationMessage(NOTIFICATION, move.getMove().toString());
+        broadcast(allClients.get(move.getGameID()), nm, session);
     }
 }
