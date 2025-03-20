@@ -73,9 +73,10 @@ public class LiveMenu {
                     break;
                 }
                 handleHighlight(input[1]);
+                break;
 
             case "resign":
-                // this.socket.resignGame(client.server.authToken);
+                handleResign();
                 break;
 
             default:
@@ -110,6 +111,20 @@ public class LiveMenu {
 
     private void handleHighlight(String pos) {
         renderGame(currentGame.validMoves(parsePosition(pos)), false);
+    }
+
+    private void handleResign() {
+        try {
+            System.out.print("Please confirm: (Y)es (N)o >>> ");
+            String choice = s.nextLine();
+            if (choice.charAt(0) == 'Y') {
+                socket.resignGame(client.server.authToken, gameID);
+            } else {
+                System.out.println("OK, cancelling");
+            }
+        } catch (Exception e) {
+            printError(e.getMessage());
+        }
     }
 
     private void interpretMove(String from, String to) {

@@ -25,9 +25,9 @@ public class WebsocketFacade extends Endpoint {
         socket = new URI("ws://localhost:" + port + "/ws");
 
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-        this.session = container.connectToServer(this, socket);
+        session = container.connectToServer(this, socket);
 
-        this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+        session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
                 ServerMessage m = new Gson().fromJson(message, ServerMessage.class);
                 switch (m.getServerMessageType()) {
@@ -52,18 +52,24 @@ public class WebsocketFacade extends Endpoint {
 
     public void connect(String authToken, int gameID) throws IOException {
         UserGameCommand command = new UserGameCommand(CommandType.CONNECT, authToken, gameID);
-        this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        session.getBasicRemote().sendText(new Gson().toJson(command));
     }
 
     public void makeMove(String authToken, int gameID, ChessMove move) throws IOException {
         MoveCommand command = new MoveCommand(authToken, gameID, move);
-        this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        session.getBasicRemote().sendText(new Gson().toJson(command));
     }
 
     public void leaveGame(String authToken, int gameID) throws IOException {
         UserGameCommand command = new UserGameCommand(CommandType.LEAVE, authToken, gameID);
-        this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        session.getBasicRemote().sendText(new Gson().toJson(command));
     }
 
-	public void onOpen(Session session, EndpointConfig config) {}
+    public void resignGame(String authToken, int gameID) throws IOException {
+        UserGameCommand command = new UserGameCommand(CommandType.RESIGN, authToken, gameID);
+        session.getBasicRemote().sendText(new Gson().toJson(command));
+    }
+
+    public void onOpen(Session session, EndpointConfig config) {
+    }
 }
