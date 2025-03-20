@@ -53,13 +53,13 @@ public class GameService {
     public ServerMessage makeMove(int gameID, ChessMove move) throws DataAccessException {
         GameData gameData = gameDAO.getGame(gameID);
         if (gameData == null) {
-            return new ErrorMessage(ERROR, "Error: no game");
+            return new ErrorMessage(ERROR, "no game");
         }
 
         try {
             gameData.game().makeMove(move);
         } catch (InvalidMoveException e) {
-            return new ErrorMessage(ERROR, "Error: invalid move" + move.toString());
+            return new ErrorMessage(ERROR, "invalid move" + move.toString());
         }
 
         gameDAO.updateGame(gameData);

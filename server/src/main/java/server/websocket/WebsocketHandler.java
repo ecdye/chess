@@ -136,7 +136,8 @@ public class WebsocketHandler {
         GameData gameData = gameService.getGame(move.getGameID());
 
         if (!username.equals(gameData.game().getTeamTurn() == TeamColor.WHITE ? gameData.whiteUsername() : gameData.blackUsername())) {
-            session.getRemote().sendString(new Gson().toJson(new ErrorMessage(ERROR, "you can move the other player pieces")));
+            ServerMessage message = new ErrorMessage(ERROR, "you are not allowed to move that piece");
+            session.getRemote().sendString(new Gson().toJson(message));
             return;
         }
 

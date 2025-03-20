@@ -98,13 +98,13 @@ public class LiveMenu {
     }
 
     public void displayNotification(String n) {
-        System.out.print(EscapeSequences.ERASE_LINE + EscapeSequences.SET_BG_COLOR_MAGENTA);
+        System.out.print(EscapeSequences.ERASE_LINE + EscapeSequences.SET_BG_COLOR_HL);
         System.out.println(n + EscapeSequences.RESET_BG_COLOR);
         System.out.printf("\n[GAME] >>> ");
     }
 
     public void displayError(String e) {
-        System.out.print(EscapeSequences.ERASE_LINE + EscapeSequences.SET_BG_COLOR_MAGENTA);
+        System.out.print(EscapeSequences.ERASE_LINE + EscapeSequences.SET_BG_COLOR_HL);
         printError(e + EscapeSequences.RESET_BG_COLOR);
         System.out.printf("\n[GAME] >>> ");
     }
