@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import ui.LiveMenu;
 import websocket.commands.UserGameCommand;
 import websocket.commands.UserGameCommand.CommandType;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
@@ -36,7 +37,11 @@ public class WebsocketFacade extends Endpoint {
                     case NOTIFICATION:
                         NotificationMessage nm = new Gson().fromJson(message, NotificationMessage.class);
                         menu.displayNotification(nm.message);
-                    default:
+                        break;
+
+                    case ERROR:
+                        ErrorMessage em = new Gson().fromJson(message, ErrorMessage.class);
+                        menu.displayError(em.errorMessage);
                         break;
                 }
             }

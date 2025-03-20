@@ -96,10 +96,6 @@ public class PostLoginMenu {
                 handleObserve(input[1]);
                 break;
 
-            case "logout":
-                // Logout handled in run method
-                break;
-
             default:
                 printError("unknown command: " + input[0]);
                 break;

@@ -1,6 +1,8 @@
 package ui;
 
+import static ui.PreLoginMenu.printCommand;
 import static ui.PostLoginMenu.printChessBoard;
+import static ui.PreLoginMenu.printError;
 
 import java.util.Scanner;
 
@@ -32,6 +34,27 @@ public class LiveMenu {
                 this.socket.leaveGame(client.server.authToken, gameID);
                 break;
             }
+            eval(input.split(" "));
+        }
+    }
+
+    private void eval(String[] input) {
+        switch (input[0].toLowerCase()) {
+            case "help":
+                printCommand("redraw", "the chess board");
+                printCommand("move <BEGIN> <END>", "a piece");
+                printCommand("resign", "from a game");
+                printCommand("highlight <PIECE>", "possible moves");
+                printCommand("help", "print this message");
+                break;
+
+            case "redraw":
+                updateGame();
+                break;
+
+            default:
+                printError("unknown command: " + input[0]);
+                break;
         }
     }
 
@@ -49,6 +72,12 @@ public class LiveMenu {
         // updateGame();
         System.out.print(EscapeSequences.ERASE_LINE + EscapeSequences.SET_BG_COLOR_MAGENTA);
         System.out.println(n + EscapeSequences.RESET_BG_COLOR);
+        System.out.printf("\n[GAME] >>> ");
+    }
+
+    public void displayError(String e) {
+        System.out.print(EscapeSequences.ERASE_LINE + EscapeSequences.SET_BG_COLOR_MAGENTA);
+        printError(e + EscapeSequences.RESET_BG_COLOR);
         System.out.printf("\n[GAME] >>> ");
     }
 }
