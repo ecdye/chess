@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -15,6 +16,7 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import chess.ChessGame.TeamColor;
+import chess.ChessMove;
 import client.ChessClient;
 import model.GameData;
 import model.results.CreateGameResult;
@@ -199,12 +201,12 @@ public class PostLoginMenu {
     }
 
 
-    static void printChessBoard(ChessGame game, boolean blackView) {
+    static void printChessBoard(ChessGame game, boolean blackView, Collection<ChessMove> validMoves) {
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(EscapeSequences.ERASE_SCREEN);
         out.print(EscapeSequences.SET_TEXT_BOLD);
         drawLetters(out, blackView);
-        drawBoard(out, blackView, game.getBoard());
+        drawBoard(out, blackView, game.getBoard(), validMoves);
         drawLetters(out, blackView);
         out.print(EscapeSequences.RESET_BG_COLOR);
         out.print(EscapeSequences.RESET_TEXT_COLOR);
@@ -226,7 +228,7 @@ public class PostLoginMenu {
         out.println(EscapeSequences.EMPTY);
     }
 
-    static void drawBoard(PrintStream out, boolean blackView, ChessBoard board) {
+    static void drawBoard(PrintStream out, boolean blackView, ChessBoard board, Collection<ChessMove> validMoves) {
         ArrayList<String> rows = new ArrayList<>(Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8"));
         if (!blackView) {
             rows = new ArrayList<>(rows.reversed());
@@ -234,13 +236,9 @@ public class PostLoginMenu {
         for (int r = 0; r < 8; ++r) {
             out.print(" " + rows.get(r) + " ");
             for (int c = 0; c < 8; ++c) {
-                if ((r + c) % 2 == 0) {
-                    out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-                } else {
-                    out.print(EscapeSequences.SET_BG_COLOR_BLACK);
-                }
                 int properRow = !blackView ? 8 - r : r + 1;
                 int properCol = !blackView ? c + 1 : 8 - c;
+                alternateColors(out, properRow, properCol, validMoves);
                 ChessPiece piece = board.getPiece(new ChessPosition(properRow, properCol));
                 if (piece != null) {
                     out.print(getPieceEscapeSequence(piece));
@@ -249,6 +247,33 @@ public class PostLoginMenu {
                 }
             }
             out.println(EscapeSequences.SET_BG_COLOR_DARK_GREY + " " + rows.get(r) + " ");
+        }
+    }
+
+    static void alternateColors(PrintStream out, int r, int c, Collection<ChessMove> validMoves) {
+        if ((r + c) % 2 != 0) {
+            out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+        } else {
+            out.print(EscapeSequences.SET_BG_COLOR_BLACK);
+        }
+        highlightColor(out, r, c, validMoves);
+    }
+
+    static void highlightColor(PrintStream out, int r, int c, Collection<ChessMove> validMoves) {
+        if (validMoves != null) {
+            for (ChessMove m : validMoves) {
+                ChessPosition ep = m.getEndPosition();
+                ChessPosition sp = m.getStartPosition();
+                int startRow = sp.getRow();
+                int startCol = sp.getColumn();
+                int endRow = ep.getRow();
+                int endCol = ep.getColumn();
+                if (r == endRow && c == endCol) {
+                    out.print(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
+                } else if (r == startRow && c == startCol) {
+                    out.print(EscapeSequences.SET_BG_COLOR_BLUE);
+                }
+            }
         }
     }
 

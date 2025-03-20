@@ -4,6 +4,7 @@ import static ui.PreLoginMenu.printCommand;
 import static ui.PostLoginMenu.printChessBoard;
 import static ui.PreLoginMenu.printError;
 
+import java.util.Collection;
 import java.util.Scanner;
 
 import chess.ChessGame;
@@ -53,7 +54,7 @@ public class LiveMenu {
                 break;
 
             case "redraw":
-                updateGame();
+                renderGame(null, false);
                 break;
 
             case "move":
@@ -64,6 +65,14 @@ public class LiveMenu {
                 }
                 interpretMove(input[1], input[2]);
                 break;
+
+            case "highlight":
+                if (input.length != 2) {
+                    printError("invalid arguments");
+                    printCommand("highlight <PIECE>", "possible moves");
+                    break;
+                }
+                handleHighlight(input[1]);
 
             case "resign":
                 // this.socket.resignGame(client.server.authToken);
@@ -77,12 +86,14 @@ public class LiveMenu {
 
     public void updateGame(ChessGame game) {
         currentGame = game;
-        updateGame();
+        renderGame(null, true);
     }
 
-    public void updateGame() {
-        printChessBoard(currentGame, black);
-        System.out.printf("\n[GAME] >>> ");
+    public void renderGame(Collection<ChessMove> validMoves, boolean print) {
+        printChessBoard(currentGame, black, validMoves);
+        if (print) {
+            System.out.printf("\n[GAME] >>> ");
+        }
     }
 
     public void displayNotification(String n) {
@@ -97,30 +108,34 @@ public class LiveMenu {
         System.out.printf("\n[GAME] >>> ");
     }
 
+    private void handleHighlight(String pos) {
+        renderGame(currentGame.validMoves(parsePosition(pos)), false);
+    }
+
     private void interpretMove(String from, String to) {
-        if (from.length() != 2 || to.length() != 2) {
-            printError("invalid positions");
-            return;
-        }
-
-        char fromCol = from.charAt(0);
-        char toCol = to.charAt(0);
-        int fromRow = Character.getNumericValue(from.charAt(1));
-        int toRow = Character.getNumericValue(to.charAt(1));
-
-        if (fromCol < 'a' || fromCol > 'h' || toCol < 'a' || toCol > 'h' || fromRow < 1 || fromRow > 8 || toRow < 1 || toRow > 8) {
-            printError("positions out of bounds");
-            return;
-        }
-
-        ChessPosition start = new ChessPosition(fromRow, fromCol - 'a' + 1);
-        ChessPosition end = new ChessPosition(toRow, toCol - 'a' + 1);
-        ChessMove move = new ChessMove(start, end, null);
-
         try {
+            ChessPosition start = parsePosition(from);
+            ChessPosition end = parsePosition(to);
+            ChessMove move = new ChessMove(start, end, null);
+
             this.socket.makeMove(client.server.authToken, gameID, move);
         } catch (Exception e) {
             printError(e.getMessage());
         }
+    }
+
+    private ChessPosition parsePosition(String coordinate) {
+        if (coordinate.length() != 2) {
+            throw new IllegalArgumentException("invalid position format");
+        }
+
+        char col = coordinate.charAt(0);
+        int row = Character.getNumericValue(coordinate.charAt(1));
+
+        if (col < 'a' || col > 'h' || row < 1 || row > 8) {
+            throw new IllegalArgumentException("position out of bounds");
+        }
+
+        return new ChessPosition(row, col - 'a' + 1);
     }
 }
