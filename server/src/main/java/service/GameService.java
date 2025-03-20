@@ -12,6 +12,7 @@ import model.results.CreateGameResult;
 import model.results.JoinGameResult;
 import model.results.ListGamesResult;
 import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -63,7 +64,7 @@ public class GameService {
         }
 
         gameDAO.updateGame(gameData);
-        return new NotificationMessage(LOAD_GAME, "?");
+        return new LoadGameMessage(LOAD_GAME, gameData.game());
     }
 
     public JoinGameResult joinGame(JoinGameRequest joinGameRequest) {

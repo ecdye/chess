@@ -4,8 +4,8 @@ import org.eclipse.jetty.websocket.api.annotations.*;
 
 import com.google.gson.Gson;
 
+import chess.ChessGame.TeamColor;
 import dataaccess.AuthDAO;
-import dataaccess.DataAccessException;
 import model.GameData;
 import service.GameService;
 import websocket.commands.MoveCommand;
@@ -127,10 +127,15 @@ public class WebsocketHandler {
     }
 
     private void handleMove(MoveCommand move, Session session) throws Exception {
-        gameService.makeMove(move.getGameID(), move.getMove());
-        GameData game = gameService.getGame(move.getGameID());
+        String username = authDAO.getAuth(move.getAuthToken()).username();
+        GameData gameData = gameService.getGame(move.getGameID());
 
-        LoadGameMessage message = new LoadGameMessage(LOAD_GAME, game.game());
+        if (!username.equals(gameData.game().getTeamTurn() == TeamColor.WHITE ? gameData.whiteUsername() : gameData.blackUsername())) {
+            session.getRemote().sendString(new Gson().toJson(new ErrorMessage(ERROR, "you can move the other player pieces")));
+            return;
+        }
+
+        LoadGameMessage message = (LoadGameMessage) gameService.makeMove(move.getGameID(), move.getMove());
         broadcast(allClients.get(move.getGameID()), message, null);
 
         NotificationMessage nm = new NotificationMessage(NOTIFICATION, move.getMove().toString());
