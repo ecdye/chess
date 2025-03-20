@@ -59,7 +59,7 @@ public class WebsocketHandler {
                 default:
                     break;
             }
-        } catch (DataAccessException | IOException e) {
+        } catch (Exception e) {
             // Send an error message over the WS
             try {
                 session.getRemote().sendString(new Gson().toJson(new ErrorMessage(ERROR, e.getMessage())));
@@ -83,7 +83,9 @@ public class WebsocketHandler {
         }
     }
 
-    private void handleConnect(Session session, UserGameCommand command) throws DataAccessException, IOException {
+    private void handleConnect(Session session, UserGameCommand command) throws Exception {
+        String username = authDAO.getAuth(command.getAuthToken()).username();
+
         HashSet<Session> clients = allClients.computeIfAbsent(command.getGameID(), k -> new HashSet<>());
         clients.add(session);
         GameData game = gameService.getGame(command.getGameID());
@@ -91,7 +93,6 @@ public class WebsocketHandler {
         LoadGameMessage message = new LoadGameMessage(LOAD_GAME, game.game());
         session.getRemote().sendString(new Gson().toJson(message));
 
-        String username = authDAO.getAuth(command.getAuthToken()).username();
         String black = game.blackUsername();
         String white = game.whiteUsername();
         NotificationMessage m;
@@ -102,7 +103,7 @@ public class WebsocketHandler {
         } else {
             m = new NotificationMessage(NOTIFICATION, username + " joined as an observer");
         }
-        broadcast(clients, m, null);
+        broadcast(clients, m, session);
     }
 
     private void handleLeave(UserGameCommand command, Session session) throws DataAccessException, IOException {
