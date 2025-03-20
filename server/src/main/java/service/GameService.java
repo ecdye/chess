@@ -13,7 +13,6 @@ import model.results.JoinGameResult;
 import model.results.ListGamesResult;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import static websocket.messages.ServerMessage.ServerMessageType.ERROR;

@@ -54,6 +54,11 @@ public class WebsocketHandler {
 
                 case LEAVE:
                     handleLeave(command, session);
+                    break;
+
+                case RESIGN:
+                    handleResign(command, session);
+                    break;
 
                 default:
                     break;
@@ -140,5 +145,29 @@ public class WebsocketHandler {
 
         NotificationMessage nm = new NotificationMessage(NOTIFICATION, move.getMove().toString());
         broadcast(allClients.get(move.getGameID()), nm, session);
+    }
+
+    private void handleResign(UserGameCommand command, Session session) throws Exception {
+        GameData game = gameService.getGame(command.getGameID());
+        String username = authDAO.getAuth(command.getAuthToken()).username();
+
+        String black = game.blackUsername();
+        String white = game.whiteUsername();
+        NotificationMessage m;
+
+        if (black != null && username.equals(black)) {
+            game = new GameData(game.gameID(), null, null, game.gameName(), game.game());
+            m = new NotificationMessage(NOTIFICATION, username + " resigned. White wins!");
+        } else if (white != null && username.equals(white)) {
+            game = new GameData(game.gameID(), null, null, game.gameName(), game.game());
+            m = new NotificationMessage(NOTIFICATION, username + " resigned. Black wins!");
+        } else {
+            session.getRemote().sendString(new Gson().toJson(new ErrorMessage(ERROR, "Only players can resign.")));
+            return;
+        }
+
+        broadcast(allClients.get(game.gameID()), m, null);
+        gameService.setGame(game);
+        session.close();
     }
 }
