@@ -140,10 +140,14 @@ public class WebsocketHandler {
             return;
         }
 
-        LoadGameMessage message = (LoadGameMessage) gameService.makeMove(move.getGameID(), move.getMove());
+        ServerMessage message = gameService.makeMove(move.getGameID(), move.getMove());
+        if (message.getClass().equals(ErrorMessage.class)) {
+            session.getRemote().sendString(new Gson().toJson(message));
+            return;
+        }
         broadcast(allClients.get(move.getGameID()), message, null);
 
-        NotificationMessage nm = new NotificationMessage(NOTIFICATION, move.getMove().toString());
+        NotificationMessage nm = new NotificationMessage(NOTIFICATION, username + " moved " + move.getMove().toString());
         broadcast(allClients.get(move.getGameID()), nm, session);
     }
 
