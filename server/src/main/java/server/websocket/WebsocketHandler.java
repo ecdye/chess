@@ -150,6 +150,25 @@ public class WebsocketHandler {
 
         NotificationMessage nm = new NotificationMessage(NOTIFICATION, username + " moved " + move.getMove().toString());
         broadcast(allClients.get(move.getGameID()), nm, session);
+
+        // Just use the data we already have to do it here rather than getting the game again
+        gameData.game().makeMove(move.getMove());
+        boolean check = gameData.game().isInCheck(gameData.game().getTeamTurn());
+        boolean checkmate = gameData.game().isInCheckmate(gameData.game().getTeamTurn());
+        boolean stalemate = gameData.game().isInStalemate(gameData.game().getTeamTurn());
+        if (check || checkmate || stalemate) {
+            username = gameData.game().getTeamTurn() == TeamColor.WHITE ? gameData.whiteUsername() : gameData.blackUsername();
+            String mate;
+            if (stalemate) {
+                mate = " is in stalemate!";
+            } else if (checkmate) {
+                mate = " is in checkmate!";
+            } else {
+                mate = " is in check!";
+            }
+            nm = new NotificationMessage(NOTIFICATION, username + mate);
+            broadcast(allClients.get(move.getGameID()), nm, null);
+        }
     }
 
     private void handleResign(UserGameCommand command, Session session) throws Exception {
