@@ -9,6 +9,7 @@ import java.util.Scanner;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import client.ChessClient;
 import websocket.WebsocketFacade;
@@ -47,9 +48,10 @@ public class LiveMenu {
         switch (input[0].toLowerCase()) {
             case "help":
                 printCommand("redraw", "the chess board");
-                printCommand("move <BEGIN> <END>", "a piece");
+                printCommand("move <BEGIN> <END> <PROMOTION>", "a piece, only promote if applicable");
                 printCommand("resign", "from a game");
                 printCommand("highlight <PIECE>", "possible moves");
+                printCommand("leave", "to stop playing");
                 printCommand("help", "print this message");
                 break;
 
@@ -58,12 +60,15 @@ public class LiveMenu {
                 break;
 
             case "move":
-                if (input.length != 3) {
+                if (input.length == 4) {
+                    interpretMove(input[1], input[2], input[3]);
+                    break;
+                } else if (input.length != 3) {
                     printError("invalid arguments");
                     printCommand("move <BEGIN> <END>", "a piece");
                     break;
                 }
-                interpretMove(input[1], input[2]);
+                interpretMove(input[1], input[2], null);
                 break;
 
             case "highlight":
@@ -117,7 +122,7 @@ public class LiveMenu {
         try {
             System.out.print("Please confirm: (Y)es (N)o >>> ");
             String choice = s.nextLine();
-            if (choice.charAt(0) == 'Y') {
+            if (choice.charAt(0) == 'Y' || choice.charAt(0) == 'y') {
                 socket.resignGame(client.server.authToken, gameID);
             } else {
                 System.out.println("OK, cancelling");
@@ -127,11 +132,31 @@ public class LiveMenu {
         }
     }
 
-    private void interpretMove(String from, String to) {
+    private void interpretMove(String from, String to, String piece) {
         try {
             ChessPosition start = parsePosition(from);
             ChessPosition end = parsePosition(to);
-            ChessMove move = new ChessMove(start, end, null);
+            ChessMove move;
+            if (piece != null) {
+                switch (piece.toLowerCase()) {
+                    case "rook":
+                        move = new ChessMove(start, end, ChessPiece.PieceType.ROOK);
+                        break;
+                    case "queen":
+                        move = new ChessMove(start, end, ChessPiece.PieceType.QUEEN);
+                        break;
+                    case "bishop":
+                        move = new ChessMove(start, end, ChessPiece.PieceType.BISHOP);
+                        break;
+                    case "knight":
+                        move = new ChessMove(start, end, ChessPiece.PieceType.KNIGHT);
+                        break;
+                    default:
+                        throw new Exception("Invalid promotion piece!");
+                }
+            } else {
+                move = new ChessMove(start, end, null);
+            }
 
             this.socket.makeMove(client.server.authToken, gameID, move);
         } catch (Exception e) {

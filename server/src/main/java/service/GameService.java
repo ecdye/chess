@@ -59,7 +59,7 @@ public class GameService {
         try {
             gameData.game().makeMove(move);
         } catch (InvalidMoveException e) {
-            return new ErrorMessage(ERROR, "invalid move" + move.toString());
+            return new ErrorMessage(ERROR, "invalid move " + move.toString());
         }
 
         gameDAO.updateGame(gameData);
